@@ -157,7 +157,7 @@
                 <configuration>
                     <includePluginDependencies>true</includePluginDependencies>
                     <mainClass>pt.up.fc.dcc.asura.builder.GameServer</mainClass>
-                    <commandlineArgs>bullseye pt.up.fc.dcc.asura.bullseye.BullseyeManager java solutions/MyBullseyePlayer.java player-java js solutions/MyBullseyePlayer.js player-js</commandlineArgs>
+                    <commandlineArgs>bullseye pt.up.fc.dcc.asura.bullseye.BullseyeManager java solutions/MyBullseyePlayer.java player-java es6 solutions/MyBullseyePlayerES6.js player-es6</commandlineArgs>
                 </configuration>
             </plugin>
         </plugins>
