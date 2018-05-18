@@ -157,7 +157,7 @@
                 <configuration>
                     <includePluginDependencies>true</includePluginDependencies>
                     <mainClass>pt.up.fc.dcc.asura.builder.GameServer</mainClass>
-                    <commandlineArgs>tictactoe pt.up.fc.dcc.asura.tictactoe.TicTacToeManager java solutions/MyTicTacToePlayer.java playerJava js solutions/MyTicTacToePlayer.js playerJs</commandlineArgs>
+                    <commandlineArgs>tictactoe pt.up.fc.dcc.asura.tictactoe.TicTacToeManager java solutions/MyTicTacToePlayer.java player-java es6 solutions/MyTicTacToePlayerES6.js player-es6</commandlineArgs>
                 </configuration>
             </plugin>
         </plugins>
