@@ -76,7 +76,6 @@
                         <exclude>**/index.html</exclude>
                         <exclude>**/movie.json</exclude>
                         <exclude>**/player.js</exclude>
-                        <exclude>**/images/</exclude>
                     </excludes>
                     <archive>
                         <manifest>
