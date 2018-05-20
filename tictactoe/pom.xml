@@ -85,6 +85,7 @@
                             <classpathPrefix>dependency-jars/</classpathPrefix>
                         </manifest>
                     </archive>
+                    <finalName>tictactoe</finalName>
                 </configuration>
             </plugin>
 
@@ -126,6 +127,8 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <finalName>tictactoe</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>

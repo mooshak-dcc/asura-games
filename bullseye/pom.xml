@@ -71,6 +71,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven.jar.plugin}</version>
                 <configuration>
+                    <finalName>bullseye</finalName>
                     <excludes>
                         <exclude>**/log4j.properties</exclude>
                         <exclude>**/index.html</exclude>
@@ -126,6 +127,8 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <finalName>bullseye</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
