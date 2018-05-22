@@ -1,110 +1,111 @@
 
-const PlayerWrapper = require('../../../wrappers/es6/PlayerWrapper');
-
-/**
- * Functions that provide game-specific functionality to TicTacToe players
- *
- * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
- */
-class TicTacToePlayer extends PlayerWrapper {
-
-    constructor() {
-        super();
-        this.board = undefined;
-        this.piece = undefined;
-    }
+(function (exports) {'use strict';
 
     /**
-     * Update the state of the game on the player
+     * Functions that provide game-specific functionality to TicTacToe players
      *
-     * @param state_update {object} the state update
+     * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
      */
-    update(state_update) {
+    class TicTacToePlayer extends PlayerWrapper {
 
-        if (!state_update || !state_update.type)
-            process.exit(-2);
-
-        switch (state_update.type) {
-
-            case 'PLAYER_X':
-                if (this.getPlayerId() === state_update.object)
-                    this.piece = 'X';
-                break;
-            case 'PLAYER_O':
-                if (this.getPlayerId() === state_update.object)
-                    this.piece = 'O';
-                break;
-            case 'BOARD':
-                this.board = state_update.object;
-                break;
+        constructor() {
+            super();
+            this.board = undefined;
+            this.piece = undefined;
         }
-    }
 
-    /**
-     * Manage player lifecycle during the game, invoking the other methods when required
-     */
-    run() {
+        /**
+         * Update the state of the game on the player
+         *
+         * @param state_update {object} the state update
+         */
+        update(state_update) {
 
-        // read X player
-        this.readAndUpdate();
+            if (!state_update || !state_update.type)
+                quit(2);
 
-        //read O player
-        this.readAndUpdate();
+            switch (state_update.type) {
 
-        // read initial state
-        this.readAndUpdate();
+                case 'PLAYER_X':
+                    if (this.getPlayerId() === state_update.object)
+                        this.piece = 'X';
+                    break;
+                case 'PLAYER_O':
+                    if (this.getPlayerId() === state_update.object)
+                        this.piece = 'O';
+                    break;
+                case 'BOARD':
+                    this.board = state_update.object;
+                    break;
+            }
+        }
 
-        // game flow
-        while (true) {
+        /**
+         * Manage player lifecycle during the game, invoking the other methods when required
+         */
+        run() {
 
+            // read X player
             this.readAndUpdate();
-            this.execute();
-            this.sendAction();
+
+            //read O player
+            this.readAndUpdate();
+
+            // read initial state
+            this.readAndUpdate();
+
+            // game flow
+            while (true) {
+
+                this.readAndUpdate();
+                this.execute();
+                this.sendAction();
+            }
+        }
+
+        /**
+         * Play in position pos of the board
+         *
+         * @param pos {number} Position of the board (between 1 and 9, counting from top-left
+         *            to bottom-right)
+         */
+        play(pos) {
+            this.doAction("PLAY", [pos]);
+        }
+
+        /**
+         * Check if position is free
+         *
+         * @param pos {number} Position of the board (between 1 and 9, counting from top-left
+         *            to bottom-right)
+         * @returns {boolean} position is free?
+         */
+        isFree(pos) {
+            return this.board[pos] === ' ';
+        }
+
+        /**
+         * Check if position is occupied by opponent
+         *
+         * @param pos {number} Position of the board (between 1 and 9, counting from top-left
+         *            to bottom-right)
+         * @returns {boolean} position is occupied by opponent?
+         */
+        isOpponent(pos) {
+            return this.board[pos] !== this.piece && !this.isFree(pos);
+        }
+
+        /**
+         * Check if position is occupied by the current player
+         *
+         * @param pos {number} Position of the board (between 1 and 9, counting from top-left
+         *            to bottom-right)
+         * @returns {boolean} position is occupied by self?
+         */
+        isSelf(pos) {
+            return this.board[pos] === this.piece;
         }
     }
 
-    /**
-     * Play in position pos of the board
-     *
-     * @param pos {number} Position of the board (between 1 and 9, counting from top-left
-     *            to bottom-right)
-     */
-    play(pos) {
-        this.doAction("PLAY", [pos]);
-    }
-
-    /**
-     * Check if position is free
-     *
-     * @param pos {number} Position of the board (between 1 and 9, counting from top-left
-     *            to bottom-right)
-     * @returns {boolean} position is free?
-     */
-    isFree(pos) {
-        return this.board[pos] === ' ';
-    }
-
-    /**
-     * Check if position is occupied by opponent
-     *
-     * @param pos {number} Position of the board (between 1 and 9, counting from top-left
-     *            to bottom-right)
-     * @returns {boolean} position is occupied by opponent?
-     */
-    isOpponent(pos) {
-        return this.board[pos] !== this.piece && !this.isFree(pos);
-    }
-
-    /**
-     * Check if position is occupied by the current player
-     *
-     * @param pos {number} Position of the board (between 1 and 9, counting from top-left
-     *            to bottom-right)
-     * @returns {boolean} position is occupied by self?
-     */
-    isSelf(pos) {
-        return this.board[pos] === this.piece;
-    }
-}
-
-module.exports = TicTacToePlayer;
+    exports.TicTacToePlayer = TicTacToePlayer;
+}(this));

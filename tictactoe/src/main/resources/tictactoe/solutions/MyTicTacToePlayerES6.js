@@ -1,73 +1,75 @@
 
 // ------------------------ Skeleton --------------------------------
 
-const TicTacToePlayer = require('./tictactoe/wrappers/es6/TicTacToePlayer');
+load('tictactoe/wrappers/es6/TicTacToePlayer.js');
 
-/**
- * TicTacToe player in Javascript
- *
- * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
- */
-class MyTicTacToePlayer extends TicTacToePlayer {
-
-    // ---------------------- Your code below ---------------------------
+(function (exports) {'use strict';
 
     /**
-     * Get the name of the player
+     * TicTacToe player in Javascript
      *
-     * @returns {string} name of the player
+     * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
      */
-    getName() {
-        return 'Professor X';
-    }
+    class MyTicTacToePlayer extends TicTacToePlayer {
 
-    /**
-     * Initialize the player
-     */
-    init() {
-    }
+        // ---------------------- Your code below ---------------------------
 
-    /**
-     * Execute player action
-     */
-    execute() {
-        this.play(this.generateMove());
-    }
-
-    /**
-     * Generates randomly a valid move
-     *
-     * @returns {number} a valid move
-     */
-    generateMove() {
-
-        let possibleMoves = [];
-
-        let i = 1;
-        while (i <= 9) {
-            if (this.isFree(i))
-                possibleMoves.push(i);
-            i++;
+        /**
+         * Get the name of the player
+         *
+         * @returns {string} name of the player
+         */
+        getName() {
+            return 'Professor X';
         }
 
-        if (possibleMoves.length === 0)
-            return 0;
+        /**
+         * Initialize the player
+         */
+        init() {
+        }
 
-        return possibleMoves[getRandomInt(possibleMoves.length)];
+        /**
+         * Execute player action
+         */
+        execute() {
+            this.play(this.generateMove());
+        }
+
+        /**
+         * Generates randomly a valid move
+         *
+         * @returns {number} a valid move
+         */
+        generateMove() {
+
+            let possibleMoves = [];
+
+            let i = 1;
+            while (i <= 9) {
+                if (this.isFree(i))
+                    possibleMoves.push(i);
+                i++;
+            }
+
+            if (possibleMoves.length === 0)
+                return 0;
+
+            return possibleMoves[getRandomInt(possibleMoves.length)];
+        }
     }
-}
 
-/**
- * Get a random int between 0 and max
- *
- * @param max {number} upper limit
- * @returns {number} random int between 0 and max
- */
-function getRandomInt(max) {
-    return Math.floor(Math.random() * Math.floor(max));
-}
+    /**
+     * Get a random int between 0 and max
+     *
+     * @param max {number} upper limit
+     * @returns {number} random int between 0 and max
+     */
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
 
-// ------------------------ Skeleton --------------------------------
+    // ------------------------ Skeleton --------------------------------
 
-// export this player
-module.exports = MyTicTacToePlayer;
+    exports.Player = MyTicTacToePlayer;
+}(this));
