@@ -1,67 +1,69 @@
 
 // ------------------------ Skeleton --------------------------------
 
-const BullseyePlayer = require('./bullseye/wrappers/es6/BullseyePlayer');
+load('bullseye/wrappers/es6/BullseyePlayer.js');
 
-/**
- * Bullseye player in Javascript
- *
- * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
- */
-class MyBullseyePlayer extends BullseyePlayer {
-
-    // ---------------------- Your code below ---------------------------
+(function (exports) {'use strict';
 
     /**
-     * Get the name of the player
+     * Bullseye player in Javascript
      *
-     * @returns {string} name of the player
+     * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
      */
-    getName() {
-        return 'José C. Paiva';
-    }
+    class MyBullseyePlayer extends BullseyePlayer {
 
-    /**
-     * Initialize the player
-     */
-    init() {
-    };
+        // ---------------------- Your code below ---------------------------
 
-    /**
-     * Execute player action
-     */
-    execute() {
-
-        const lastHit = this.getLastHit();
-
-        if (lastHit === undefined) {
-            this.lastHorizAngle = Math.random() * 30 - 30;
-            this.lastVertAngle = Math.random() * 30 - 30;
-            this.shoot(this.lastHorizAngle, this.lastVertAngle);
-
-            return;
+        /**
+         * Get the name of the player
+         *
+         * @returns {string} name of the player
+         */
+        getName() {
+            return 'José C. Paiva';
         }
 
-        if (lastHit[0] > 400) {
-            this.lastHorizAngle = Math.max(this.lastHorizAngle - 10, -80);
-        } else if (lastHit[0] < 200) {
-            this.lastHorizAngle = Math.min(this.lastHorizAngle + 10, 80);
-        } else
-            this.lastHorizAngle = Math.max(Math.min(this.lastHorizAngle + Math.random() * 2.5, 80), -80);
+        /**
+         * Initialize the player
+         */
+        init() {
+        };
 
-        if (lastHit[1] > 400) {
-            this.lastVertAngle = Math.max(this.lastVertAngle - 10, -80);
-        } else if (lastHit[1] < 200) {
-            this.lastVertAngle = Math.min(this.lastVertAngle + 10, 80);
-        } else
-            this.lastVertAngle = Math.max(Math.min(this.lastVertAngle + Math.random() * 2.5, 80), -80);
+        /**
+         * Execute player action
+         */
+        execute() {
 
-        this.shoot(this.lastHorizAngle, this.lastVertAngle);
+            const lastHit = this.getLastHit();
+
+            if (lastHit === undefined) {
+                this.lastHorizAngle = Math.random() * 30 - 30;
+                this.lastVertAngle = Math.random() * 30 - 30;
+                this.shoot(this.lastHorizAngle, this.lastVertAngle);
+
+                return;
+            }
+
+            if (lastHit[0] > 400) {
+                this.lastHorizAngle = Math.max(this.lastHorizAngle - 10, -80);
+            } else if (lastHit[0] < 200) {
+                this.lastHorizAngle = Math.min(this.lastHorizAngle + 10, 80);
+            } else
+                this.lastHorizAngle = Math.max(Math.min(this.lastHorizAngle + Math.random() * 2.5, 80), -80);
+
+            if (lastHit[1] > 400) {
+                this.lastVertAngle = Math.max(this.lastVertAngle - 10, -80);
+            } else if (lastHit[1] < 200) {
+                this.lastVertAngle = Math.min(this.lastVertAngle + 10, 80);
+            } else
+                this.lastVertAngle = Math.max(Math.min(this.lastVertAngle + Math.random() * 2.5, 80), -80);
+
+            this.shoot(this.lastHorizAngle, this.lastVertAngle);
+        }
     }
+
 
     // ------------------------ Skeleton --------------------------------
 
-}
-
-// export this player
-module.exports = MyBullseyePlayer;
+    exports.Player = MyBullseyePlayer;
+}(this));
