@@ -1,9 +1,10 @@
 package pt.up.fc.dcc.asura.tictactoe;
 
 import pt.up.fc.dcc.asura.builder.base.*;
+import pt.up.fc.dcc.asura.builder.base.exceptions.BuilderException;
+import pt.up.fc.dcc.asura.builder.base.exceptions.PlayerException;
 import pt.up.fc.dcc.asura.builder.base.messaging.PlayerAction;
 import pt.up.fc.dcc.asura.builder.base.messaging.StateUpdate;
-import pt.up.fc.dcc.asura.builder.base.movie.GameMovieBuilderImpl;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,25 +33,25 @@ public class TicTacToeManager extends GameManager {
     }
 
     @Override
-    public void manage(GameState state, Map<String, Process> players) throws IOException {
+    protected void manage(GameState state, Map<String, Process> players)
+            throws BuilderException, PlayerException {
 
-        if (players.size() != 2)
-            throw new IllegalArgumentException("Invalid number of players pieces: " + players.size());
-
-        movieBuilder = new GameMovieBuilderImpl();
+        if (players.size() < getMinPlayersPerMatch() || players.size() > getMaxPlayersPerMatch())
+            throw new BuilderException("Invalid number of players: " + players.size());
 
         try (Streamer streamer = new Streamer(players)) {
 
             // collect player names
             Map<String, String> playerNames = new HashMap<>();
             for (String player : players.keySet()) {
-                PlayerAction action = streamer.readActionFrom(player);
-                String name = getName(action);
+                String name = getName(streamer.readActionFrom(player));
                 playerNames.put(player, name);
             }
 
             // prepare state
             state.prepare(movieBuilder, playerNames);
+
+            // run game
 
             // send player symbols to each player
             for (String player : players.keySet()) {
@@ -81,9 +82,13 @@ public class TicTacToeManager extends GameManager {
 
             for (String player : players.keySet())
                 streamer.sendStateUpdateTo(player, state.getStateUpdateFor(player));
-        }
 
-        state.finalize(movieBuilder);
+            // finalize state
+            state.finalize(movieBuilder);
+
+        } catch (IOException e) {
+            throw new BuilderException(e.getMessage());
+        }
     }
 
 }

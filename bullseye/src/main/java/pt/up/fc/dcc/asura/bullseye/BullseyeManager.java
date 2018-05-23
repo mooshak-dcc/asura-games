@@ -1,8 +1,9 @@
 package pt.up.fc.dcc.asura.bullseye;
 
 import pt.up.fc.dcc.asura.builder.base.*;
+import pt.up.fc.dcc.asura.builder.base.exceptions.BuilderException;
+import pt.up.fc.dcc.asura.builder.base.exceptions.PlayerException;
 import pt.up.fc.dcc.asura.builder.base.messaging.PlayerAction;
-import pt.up.fc.dcc.asura.builder.base.movie.GameMovieBuilderImpl;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -14,8 +15,6 @@ import java.util.Map;
  * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
  */
 public class BullseyeManager extends GameManager {
-
-    private GameState currentState = null;
 
     @Override
     public String getGameStateClassName() {
@@ -33,14 +32,11 @@ public class BullseyeManager extends GameManager {
     }
 
     @Override
-    public void manage(GameState state, Map<String, Process> players) throws IOException {
+    protected void manage(GameState state, Map<String, Process> players)
+            throws BuilderException, PlayerException {
 
-        if (players.size() < 1)
-            throw new IllegalArgumentException("Invalid number of players: " + players.size());
-
-        currentState = state;
-
-        movieBuilder = new GameMovieBuilderImpl();
+        if (players.size() < getMinPlayersPerMatch() || players.size() > getMaxPlayersPerMatch())
+            throw new BuilderException("Invalid number of players: " + players.size());
 
         try (Streamer streamer = new Streamer(players)) {
 
@@ -52,25 +48,31 @@ public class BullseyeManager extends GameManager {
             }
 
             // prepare state
-            currentState.prepare(movieBuilder, playerNames);
+            state.prepare(movieBuilder, playerNames);
 
             // run game
-            while (currentState.isRunning()) {
-                String player = ((BullseyeState) currentState).getTurn();
+            while (state.isRunning()) {
+                String player = ((BullseyeState) state).getTurn();
 
-                streamer.sendStateUpdateTo(player, currentState.getStateUpdateFor(player));
+                streamer.sendStateUpdateTo(player, state.getStateUpdateFor(player));
 
                 PlayerAction action = streamer.readActionFrom(player);
 
-                currentState.execute(movieBuilder, player, action);
+                state.execute(movieBuilder, player, action);
 
-                currentState.endRound(movieBuilder);
+                state.endRound(movieBuilder);
             }
 
             for (String player : players.keySet())
                 streamer.sendStateUpdateTo(player, null);
 
-            currentState.finalize(movieBuilder);
+
+            // finalize state
+            state.finalize(movieBuilder);
+
+        } catch (IOException e) {
+            throw new BuilderException(e.getMessage());
         }
     }
+
 }
