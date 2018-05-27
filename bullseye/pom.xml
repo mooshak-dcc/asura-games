@@ -162,7 +162,7 @@
                 <configuration>
                     <includePluginDependencies>true</includePluginDependencies>
                     <mainClass>pt.up.fc.dcc.asura.builder.GameServer</mainClass>
-                    <commandlineArgs>bullseye pt.up.fc.dcc.asura.bullseye.BullseyeManager js MyBullseyePlayer.js player-java es6 MyBullseyePlayerES6.js player-es6</commandlineArgs>
+                    <commandlineArgs>bullseye pt.up.fc.dcc.asura.bullseye.BullseyeManager java MyBullseyePlayer.java player1 java MyBullseyePlayer.java player2</commandlineArgs>
                     <systemProperties>
                         <systemProperty>
                             <key>js.interpreter</key>
