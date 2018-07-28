@@ -5,6 +5,7 @@ import pt.up.fc.dcc.asura.builder.base.exceptions.BuilderException;
 import pt.up.fc.dcc.asura.builder.base.exceptions.PlayerException;
 import pt.up.fc.dcc.asura.builder.base.messaging.PlayerAction;
 import pt.up.fc.dcc.asura.builder.base.messaging.StateUpdate;
+import pt.up.fc.dcc.asura.builder.base.movie.models.MooshakClassification;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -73,7 +74,11 @@ public class TicTacToeManager extends GameManager {
                 streamer.sendStateUpdateTo(player, state.getStateUpdateFor(player));
                 PlayerAction action = streamer.readActionFrom(player);
 
-                state.execute(movieBuilder, player, action);
+                try {
+                    state.execute(movieBuilder, player, action);
+                } catch (IllegalArgumentException e) {
+                    throw new PlayerException(player, MooshakClassification.WRONG_ANSWER, e.getMessage());
+                }
 
                 state.endRound(movieBuilder);
 

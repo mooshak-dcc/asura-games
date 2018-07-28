@@ -1,35 +1,34 @@
-package pt.up.fc.dcc.asura.bullseye;
+package pt.up.fc.dcc.asura;
 
 import pt.up.fc.dcc.asura.builder.base.*;
 import pt.up.fc.dcc.asura.builder.base.exceptions.BuilderException;
 import pt.up.fc.dcc.asura.builder.base.exceptions.PlayerException;
 import pt.up.fc.dcc.asura.builder.base.messaging.PlayerAction;
-import pt.up.fc.dcc.asura.builder.base.movie.models.MooshakClassification;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Manager of the Bullseye.
+ * Manager of the Asteroids.
  *
  * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
  */
-public class BullseyeManager extends GameManager {
+public class AsteroidsManager extends GameManager {
 
     @Override
     public String getGameStateClassName() {
-        return BullseyeState.class.getCanonicalName();
+        return AsteroidsState.class.getCanonicalName();
     }
 
     @Override
     public int getMaxPlayersPerMatch() {
-        return 2;
+        return 4;
     }
 
     @Override
     public int getMinPlayersPerMatch() {
-        return 2;
+        return 1;
     }
 
     @Override
@@ -49,28 +48,27 @@ public class BullseyeManager extends GameManager {
             }
 
             // prepare state
-            state.prepare(movieBuilder, playerNames);
+            state.prepare(movieBuilder, getGameName(), playerNames);
+
+            // send initial update to players
+            for (String playerId: players.keySet()) {
+                streamer.sendStateUpdateTo(playerId, state.getStateUpdateFor(playerId));
+            }
 
             // run game
             while (state.isRunning()) {
-                String player = ((BullseyeState) state).getTurn();
 
-                streamer.sendStateUpdateTo(player, state.getStateUpdateFor(player));
+                for (String playerId: players.keySet()) {
+                    streamer.sendStateUpdateTo(playerId, state.getStateUpdateFor(playerId));
 
-                PlayerAction action = streamer.readActionFrom(player);
-
-                try {
-                    state.execute(movieBuilder, player, action);
-                } catch (IllegalArgumentException e) {
-                    throw new PlayerException(player, MooshakClassification.WRONG_ANSWER, e.getMessage());
+                    // TODO: limit time for action
+                    PlayerAction action = streamer.readActionFrom(playerId);
+                    state.execute(movieBuilder, playerId, action);
                 }
 
+                // players execute actions at the same time
                 state.endRound(movieBuilder);
             }
-
-            for (String player : players.keySet())
-                streamer.sendStateUpdateTo(player, null);
-
 
             // finalize state
             state.finalize(movieBuilder);
