@@ -15,19 +15,19 @@ public class Ship extends DrawableActor implements HasTeam {
     private static final String SPRITE_ID_FORMAT = "s%d";
     private static final String SHIELD_SPRITE_ID_FORMAT = "p%d";
     private static final String[] SPRITES = {
-            "ship1.png"/*, "ship2.png", "ship3.png", "ship4.png"*/
+            "s1.png", "s2.png", "s3.png", "s4.png"
     };
     private static final String[] SHIELD_SPRITES = {
             "shield1.png", "shield2.png", "shield3.png", "shield4.png",
     };
-    private static final int SPRITE_SIZE = 64;
+    private static final int SPRITE_SIZE = 512;
 
-    private static final double SHIP_RADIUS = 9D;
-    private static final double SHIELD_RADIUS = 14D;
+    private static final double SHIP_RADIUS = 20D;
+    private static final double SHIELD_RADIUS = 25D;
 
     private static final int STEER_STEP = 4;
 
-    private static final int THRUST_INTERVAL = 10;
+    private static final int THRUST_INTERVAL = 5;
     private static final double THRUST_POWER = 0.5D;
 
     private static final int MIN_SHIELD_TIME = 20;
@@ -35,10 +35,12 @@ public class Ship extends DrawableActor implements HasTeam {
     private static final double SHIELD_INCREASE_FRAME = 0.1D;
 
     private static final double MAX_SPEED = 5D;
-    private static final double MAX_ENERGY = 100D;
-    private static final int MAX_HEALTH = 100;
+    public static final double MAX_ENERGY = 100D;
+    public static final int MAX_HEALTH = 100;
 
     private static final int HIT_FORCE_MULTIPLIER = 10;
+
+    private static int teamCount = 0;
 
     private String playerId;
     private String spriteId;
@@ -60,6 +62,12 @@ public class Ship extends DrawableActor implements HasTeam {
 
     // weapons
     private Weapon primaryWeapon;
+
+    // a bullet counter (so we can identify bullets to notify about the result)
+    private int fireCount = 0;
+
+    // score of the ship / player
+    private int score = 0;
 
     // frame at which player was killed
     private int killedOn = 0;
@@ -84,7 +92,7 @@ public class Ship extends DrawableActor implements HasTeam {
     }
 
     public static Ship create(String playerId, Vector position, Vector velocity, int heading) {
-        int teamNr = (int) (Math.random() * SPRITES.length);
+        int teamNr = teamCount++ % SPRITES.length;
         return new Ship(playerId, String.format(SPRITE_ID_FORMAT, teamNr),
                 String.format(SHIELD_SPRITE_ID_FORMAT, teamNr),
                 teamNr, position, velocity, heading);
@@ -97,6 +105,14 @@ public class Ship extends DrawableActor implements HasTeam {
     @Override
     public int getTeamNr() {
         return teamNr;
+    }
+
+    public int getFireCount() {
+        return fireCount;
+    }
+
+    public int getScore() {
+        return score;
     }
 
     public int getHeading() {
@@ -117,6 +133,10 @@ public class Ship extends DrawableActor implements HasTeam {
 
     public int getKilledOn() {
         return killedOn;
+    }
+
+    public void addScorePoints(int points) {
+        score += points;
     }
 
     public void thrust() {
@@ -172,9 +192,17 @@ public class Ship extends DrawableActor implements HasTeam {
 
         if (isAlive() && !isShieldActive()) {
             Bullet b = primaryWeapon.fire();
-            if (b != null)
+            if (b != null) {
                 bullets.add(b);
+            } else { // hack: add expired bullet so that bullet result is sent to player
+                b = new Bullet(playerId, teamNr, fireCount, new Vector(-1, -1), new Vector(-1, -1), 0);
+                b.hit(-1);
+                b.setResult(BulletResult.WEAPON_LOCKED);
+                bullets.add(b);
+            }
         }
+
+        fireCount++;
     }
 
     public boolean hit(double force) {
@@ -243,10 +271,14 @@ public class Ship extends DrawableActor implements HasTeam {
         if (normAngle < 0)
             normAngle = 360 + normAngle;
 
+        int spriteIndex = 0;
+        if (AsteroidsState.time - lastThrustTime < THRUST_INTERVAL)
+            spriteIndex = AsteroidsState.time - lastThrustTime + 1;
+
         builder.addItem(spriteId,
                 (int) position.getX(), (int) position.getY(),
-                0, size / SPRITE_SIZE,
-                0, (int) (Math.floor(normAngle / 4) * SPRITE_SIZE),
+                Math.toRadians(normAngle), size / SPRITE_SIZE,
+                spriteIndex * SPRITE_SIZE, 0,
                 SPRITE_SIZE, SPRITE_SIZE);
 
         if (isShieldActive())

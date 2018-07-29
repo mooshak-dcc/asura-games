@@ -5,24 +5,29 @@ import pt.up.fc.dcc.asura.builder.base.movie.GameMovieBuilder;
 import pt.up.fc.dcc.asura.utils.Vector;
 
 /**
- * Base bullet clas
+ * Base bullet class
  *
  * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
  */
 public class Bullet extends Actor {
     private static final String SPRITE_ID_FORMAT = "b%d";
     private static final String[] SPRITES = {
-            "laser1.png"/*, "bullet2.png", "bullet3.png", "bullet4.png"*/
+            "laser1.png", "laser2.png", "laser3.png", "laser4.png"
     };
     private static final int SPRITE_WIDTH = 55;
     private static final int SPRITE_HEIGHT = 110;
     private static final int BULLET_WIDTH = 3;
     private static final int BULLET_HEIGHT = 6;
+    private static final String BULLET_ID_FORMAT = "bullet%d";
     private static final int BULLET_LIFESPAN = 400;
     private static final int BULLET_POWER = 1;
 
     protected String spriteId;
     protected int teamNr;
+
+    private String playerId;
+
+    private String bulletId;
 
     protected int heading;
     protected int lifespan;
@@ -31,22 +36,36 @@ public class Bullet extends Actor {
 
     private int health = 1;
 
-    public Bullet(int teamNr, Vector position, Vector velocity, int heading) {
-        this(teamNr, position, velocity, heading, BULLET_LIFESPAN, BULLET_POWER);
+    private BulletResult result;
+
+    public Bullet(String playerId, int teamNr, int bulletCount, Vector position, Vector velocity, int heading) {
+        this(playerId, teamNr, bulletCount, position, velocity, heading, BULLET_LIFESPAN, BULLET_POWER);
     }
 
-    public Bullet(int teamNr, Vector position, Vector velocity, int heading, int lifespan) {
-        this(teamNr, position, velocity, heading, BULLET_LIFESPAN, BULLET_POWER);
+    public Bullet(String playerId, int teamNr, int bulletCount, Vector position, Vector velocity, int heading,
+                  int lifespan) {
+        this(playerId, teamNr, bulletCount, position, velocity, heading, BULLET_LIFESPAN, BULLET_POWER);
     }
 
-    public Bullet(int teamNr, Vector position, Vector velocity, int heading, int lifespan, int power) {
+    public Bullet(String playerId, int teamNr, int bulletCount, Vector position, Vector velocity, int heading,
+                  int lifespan, int power) {
         super(position, velocity);
+        this.playerId = playerId;
         this.spriteId = String.format(SPRITE_ID_FORMAT, teamNr % SPRITES.length);
         this.teamNr = teamNr;
+        this.bulletId = String.format(BULLET_ID_FORMAT, bulletCount);
         this.heading = heading;
         this.lifespan = lifespan;
         this.startTime = AsteroidsState.time;
         this.power = power;
+    }
+
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    public String getBulletId() {
+        return bulletId;
     }
 
     public int heading() {
@@ -106,6 +125,14 @@ public class Bullet extends Actor {
         builder.addItem(spriteId,
                 (int) position.getX(), (int) position.getY(),
                 Math.toRadians(heading),(double) BULLET_WIDTH / SPRITE_WIDTH);
+    }
+
+    public void setResult(BulletResult result) {
+        this.result = result;
+    }
+
+    public BulletResult getResult() {
+        return result;
     }
 
     /**

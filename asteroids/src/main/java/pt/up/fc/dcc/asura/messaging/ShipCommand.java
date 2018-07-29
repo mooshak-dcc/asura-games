@@ -1,5 +1,7 @@
 package pt.up.fc.dcc.asura.messaging;
 
+import java.util.List;
+
 /**
  * Command sent from a player
  *
@@ -12,15 +14,19 @@ public class ShipCommand {
     private boolean shield;
     private int fire;
 
+    private List<String> messages;
+
     public ShipCommand() {
     }
 
-    public ShipCommand(boolean thrust, boolean steerLeft, boolean steerRight, boolean shield, int fire) {
+    public ShipCommand(boolean thrust, boolean steerLeft, boolean steerRight, boolean shield, int fire,
+                       List<String> messages) {
         this.thrust = thrust;
         this.steerLeft = steerLeft;
         this.steerRight = steerRight;
         this.shield = shield;
         this.fire = fire;
+        this.messages = messages;
     }
 
     public boolean isThrust() {
@@ -61,5 +67,13 @@ public class ShipCommand {
 
     public void setFire(int fire) {
         this.fire = fire;
+    }
+
+    public List<String> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<String> messages) {
+        this.messages = messages;
     }
 }

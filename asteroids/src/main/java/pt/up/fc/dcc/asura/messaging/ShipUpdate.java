@@ -1,14 +1,16 @@
 package pt.up.fc.dcc.asura.messaging;
 
+import pt.up.fc.dcc.asura.models.BulletResult;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * [Description here]
- *
- * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
- */
 public class ShipUpdate {
+    public enum Type {
+        ASTEROID, SHIP, BULLET
+    };
 
     private int x;
     private int y;
@@ -17,8 +19,8 @@ public class ShipUpdate {
     private int health;
     private double energy;
     private int shieldCounter;
-    /*private Map<, Integer> bullets;
-    private Map<String, >*/
+    private Map<String, BulletResult> bullets = new HashMap<>();
+    private Map<Type, List<int[]>> actors = new HashMap<>();
 
     public ShipUpdate() {
     }
@@ -86,5 +88,22 @@ public class ShipUpdate {
 
     public void setShieldCounter(int shieldCounter) {
         this.shieldCounter = shieldCounter;
+    }
+
+    public void addBulletResult(String bulletId, BulletResult result) {
+        bullets.put(bulletId, result);
+    }
+
+    public Map<String, BulletResult> getBullets() {
+        return bullets;
+    }
+
+    public void addActor(Type type, int x, int y) {
+        List<int[]> actorsOfType = actors.computeIfAbsent(type, at -> new ArrayList<>());
+        actorsOfType.add(new int[] { x, y });
+    }
+
+    public Map<Type, List<int[]>> getActors() {
+        return actors;
     }
 }

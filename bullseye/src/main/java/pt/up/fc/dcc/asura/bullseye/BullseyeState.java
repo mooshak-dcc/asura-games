@@ -273,7 +273,6 @@ public class BullseyeState implements GameState {
             if (message.length() > 0)
                 movieBuilder.addMessage(playerId, message.toString());
         }
-        //messages.clear();
     }
 
     @Override

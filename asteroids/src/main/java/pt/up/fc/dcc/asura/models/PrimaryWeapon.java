@@ -2,11 +2,6 @@ package pt.up.fc.dcc.asura.models;
 
 import pt.up.fc.dcc.asura.utils.Vector;
 
-/**
- *
- *
- * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
- */
 public class PrimaryWeapon extends Weapon {
     private static final double BULLET_SPEED = -2.5D;
 
@@ -23,7 +18,7 @@ public class PrimaryWeapon extends Weapon {
         Vector position = (Vector) ship.getPosition().clone();
         position.add(new Vector(velocity.getX() * ship.radius(), velocity.getY() * ship.radius()));
 
-        return new Bullet(ship.getTeamNr(), position, velocity,
+        return new Bullet(ship.getPlayerId(), ship.getTeamNr(), ship.getFireCount(), position, velocity,
                 ship.getHeading());
     }
 }

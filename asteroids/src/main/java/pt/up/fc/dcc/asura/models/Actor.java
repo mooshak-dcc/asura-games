@@ -57,6 +57,17 @@ public abstract class Actor implements Drawable {
     }
 
     /**
+     * Checks whether an actor is in a given range of another actor
+     *
+     * @param actor {@link Actor} the other actor
+     * @return {@code true} if the actor collides with the other, {@code false} otherwise
+     */
+    public boolean withinRange(Actor actor, double range) {
+
+        return position.distance(actor.getPosition()) <= radius() + actor.radius() + range;
+    }
+
+    /**
      * Is this actor expired?
      *
      * @return {@code true} if it is expired, {@code false} otherwise

@@ -35,9 +35,19 @@ load('asteroids/wrappers/es6/AsteroidsPlayer.js');
          */
         execute() {
 
-            this.thrust();
+            // this.thrust();
+            //this.log(this.health());
 
-            this.firePrimary();
+            let p = this.firePrimary();
+            //printErr(JSON.stringify(p));
+            p
+                .then((result) => {
+                    this.log(result);
+                })
+                .catch(e => {
+                    this.log('Oh my god!');
+                });
+            //printErr(JSON.stringify(p));
 
             if (this.count % 100 === 0)
                 this.steerRight();
