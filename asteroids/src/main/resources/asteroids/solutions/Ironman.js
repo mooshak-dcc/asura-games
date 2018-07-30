@@ -38,7 +38,7 @@ load('asteroids/wrappers/es6/AsteroidsPlayer.js');
             });
 
             this.onBulletDetected((bullet) => {
-                this.log("bullet: " + JSON.stringify(bullet));
+                //this.log("bullet: " + JSON.stringify(bullet));
             });
         }
 
@@ -47,13 +47,14 @@ load('asteroids/wrappers/es6/AsteroidsPlayer.js');
          */
         execute() {
 
-            //this.thrust();
-            this.log(this.health());
+            this.thrust();
 
             this.firePrimary()
                 .then((res) => {
                     this.log(res);
                 });
+
+            this.log(this.state().health);
 
             if (this.count % 100 === 0)
                 this.fireSecondary();

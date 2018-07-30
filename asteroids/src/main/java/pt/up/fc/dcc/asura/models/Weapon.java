@@ -19,7 +19,8 @@ public abstract class Weapon {
     }
 
     public Bullet fire() {
-        if (AsteroidsState.time - lastRechargeTime > weaponRechargeTime()) {
+        if (lastRechargeTime == 0
+                || AsteroidsState.time - lastRechargeTime > weaponRechargeTime()) {
             lastRechargeTime = AsteroidsState.time;
             return doFire();
         }

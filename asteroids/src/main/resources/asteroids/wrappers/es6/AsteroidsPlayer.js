@@ -102,7 +102,7 @@
          * Sensors
          */
 
-        x () {
+        /*x () {
             return this._state.x;
         }
 
@@ -127,7 +127,11 @@
         }
 
         shieldCounter () {
-            return this._state.shieldCounter;
+            return this._state.shield_counter;
+        }*/
+
+        state () {
+            return Object.assign({}, this._state);
         }
 
         /**
@@ -190,6 +194,7 @@
                 heading: state.heading,
                 energy: state.energy,
                 health: state.health,
+                shield_counter: state.shield_counter
             };
         }
 

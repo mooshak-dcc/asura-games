@@ -47,8 +47,6 @@ load('asteroids/wrappers/es6/AsteroidsPlayer.js');
          */
         execute() {
 
-            this.log(this.health());
-
             if (this.count % 1000 === 0)
                 this.thrust();
 

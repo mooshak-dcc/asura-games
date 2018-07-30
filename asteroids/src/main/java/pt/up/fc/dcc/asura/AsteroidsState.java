@@ -656,16 +656,24 @@ public class AsteroidsState implements GameState {
                 double distance = Math.max((bomb.getPosition().distance(ship.getPosition())
                         - bomb.radius() - ship.radius()), 10);
 
-                if (ship.isShieldActive())
+                if (ship.isShieldActive()) {
+                    if (!ship.getPlayerId().equals(bombOwner.getPlayerId())) {
+                        ship.addScorePoints(BULLET_PROTECTION_SCORE);
+                        bombOwner.addScorePoints(SHOT_ON_PROTECTION_SCORE);
+                    }
+
                     continue;
+                }
 
                 if (ship.hit(bomb.power() * 10/distance)) {
-                    bombOwner.addScorePoints(DESTROYED_SHIP_SCORE);
+                    if (!ship.getPlayerId().equals(bombOwner.getPlayerId()))
+                        bombOwner.addScorePoints(DESTROYED_SHIP_SCORE);
 
                     // add animation
                     effects.add(ship.getExplosionEffect(bomb));
                 } else {
-                    bombOwner.addScorePoints(HIT_SHIP_SCORE);
+                    if (!ship.getPlayerId().equals(bombOwner.getPlayerId()))
+                        bombOwner.addScorePoints(HIT_SHIP_SCORE);
 
                     // add animation
                     effects.add(ship.getHitEffect(bomb));
