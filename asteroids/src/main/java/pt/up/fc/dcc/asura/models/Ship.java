@@ -5,6 +5,7 @@ import pt.up.fc.dcc.asura.builder.base.movie.GameMovieBuilder;
 import pt.up.fc.dcc.asura.utils.Vector;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Representation of a ship
@@ -34,6 +35,8 @@ public class Ship extends DrawableActor implements HasTeam {
     private static final double SHIELD_ENERGY_DECREASE = 0.5D;
     private static final double SHIELD_INCREASE_FRAME = 0.1D;
 
+    private static final double BOMB_ENERGY_DECREASE = 50;
+
     private static final double MAX_SPEED = 5D;
     public static final double MAX_ENERGY = 100D;
     public static final int MAX_HEALTH = 100;
@@ -62,6 +65,7 @@ public class Ship extends DrawableActor implements HasTeam {
 
     // weapons
     private Weapon primaryWeapon;
+    private Weapon secondaryWeapon;
 
     // a bullet counter (so we can identify bullets to notify about the result)
     private int fireCount = 0;
@@ -81,6 +85,7 @@ public class Ship extends DrawableActor implements HasTeam {
         this.position = position;
         this.heading = heading;
         this.primaryWeapon = new PrimaryWeapon(this);
+        this.secondaryWeapon = new SecondaryWeapon(this);
     }
 
     public static Ship create(String playerId) {
@@ -199,6 +204,20 @@ public class Ship extends DrawableActor implements HasTeam {
                 b.hit(-1);
                 b.setResult(BulletResult.WEAPON_LOCKED);
                 bullets.add(b);
+            }
+        }
+
+        fireCount++;
+    }
+
+    public void fireSecondary(List<Bomb> bombs) {
+
+        if (isAlive() && !isShieldActive() && energy >= BOMB_ENERGY_DECREASE) {
+            Bomb b = (Bomb) secondaryWeapon.fire();
+            if (b != null) {
+                bombs.add(b);
+                energy -= BOMB_ENERGY_DECREASE;
+                Logger.getLogger("").severe("Energy: " + energy);
             }
         }
 

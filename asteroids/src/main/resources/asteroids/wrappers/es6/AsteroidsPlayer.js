@@ -160,11 +160,6 @@
 
         fireSecondary () {
             this._current_action.fire = 2;
-
-            let promise = new DeferredPromise();
-            this._current_action.fire_promise = promise;
-
-            return promise;
         }
 
         /**

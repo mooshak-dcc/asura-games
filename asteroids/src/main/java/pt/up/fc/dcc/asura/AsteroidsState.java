@@ -12,7 +12,6 @@ import pt.up.fc.dcc.asura.models.*;
 import pt.up.fc.dcc.asura.utils.Vector;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Stores the current state of the Asteroids game
@@ -64,6 +63,7 @@ public class AsteroidsState implements GameState {
     private List<Asteroid> asteroids = new ArrayList<>();
     private Map<String, Ship> ships = new HashMap<>();
     private Map<String, List<Bullet>> bullets = new HashMap<>();
+    private Map<String, List<Bomb>> bombs = new HashMap<>();
     private List<EffectActor> effects = new ArrayList<>();
 
     private Map<String, ShipCommand> roundCommands = new HashMap<>();
@@ -79,7 +79,6 @@ public class AsteroidsState implements GameState {
         movieBuilder.setTitle(title);
         movieBuilder.setWidth(GAME_WORLD_WIDTH);
         movieBuilder.setHeight(GAME_WORLD_HEIGHT);
-        //movieBuilder.setBackground("background.jpg");
         movieBuilder.setFps(FPS);
         movieBuilder.setSpriteAnchor(GameMovieBuilder.SpriteAnchor.CENTER);
 
@@ -88,12 +87,13 @@ public class AsteroidsState implements GameState {
         Asteroid.loadSprites(movieBuilder);
         Ship.loadSprites(movieBuilder);
         Bullet.loadSprites(movieBuilder);
-        Star.loadSprites(movieBuilder);
         BulletHitEffect.loadSprites(movieBuilder);
         AsteroidHitEffect.loadSprites(movieBuilder);
         AsteroidExplosionEffect.loadSprites(movieBuilder);
         ShipExplosionEffect.loadSprites(movieBuilder);
         ShipHitEffect.loadSprites(movieBuilder);
+        Bomb.loadSprites(movieBuilder);
+        BombExplosionEffect.loadSprites(movieBuilder);
 
         Vector worldCenter = new Vector(GAME_WORLD_WIDTH / 2, GAME_WORLD_HEIGHT / 2);
 
@@ -106,6 +106,7 @@ public class AsteroidsState implements GameState {
             ships.put(playerId, Ship.create(playerId,
                     position, (int) Math.toDegrees(position.headingTo(worldCenter)) - 90));
             bullets.put(playerId, new LinkedList<>());
+            bombs.put(playerId, new LinkedList<>());
             bulletResults.put(playerId, new LinkedList<>());
         }
 
@@ -140,7 +141,6 @@ public class AsteroidsState implements GameState {
                         boolean thrust = Boolean.parseBoolean(String.valueOf(args[0]));
                         boolean steerLeft = Boolean.parseBoolean(String.valueOf(args[1]));
                         boolean steerRight = Boolean.parseBoolean(String.valueOf(args[2]));
-
                         boolean shield = Boolean.parseBoolean(String.valueOf(args[3]));
 
                         int fire;
@@ -150,9 +150,6 @@ public class AsteroidsState implements GameState {
                             throw new IllegalArgumentException("SHIP: fire expects an integer, " +
                                     "got '" + String.valueOf(args[4]) + "'");
                         }
-
-                        /*Logger.getLogger("").severe(thrust + " " + steerLeft + " " +
-                                steerRight + " " + shield + " " + fire);*/
 
                         roundCommands.put(playerId, new ShipCommand(thrust,
                                 steerLeft, steerRight, shield, fire, action.getMessages()));
@@ -196,7 +193,6 @@ public class AsteroidsState implements GameState {
         while (!oldBullets.isEmpty()) {
             Bullet oldBullet = oldBullets.removeFirst();
             update.addBulletResult(oldBullet.getBulletId(), oldBullet.getResult());
-            Logger.getLogger("").severe(oldBullet.getBulletId());
         }
 
         // add actors
@@ -214,6 +210,23 @@ public class AsteroidsState implements GameState {
                     update.addActor(ShipUpdate.Type.BULLET,
                             (int) bullet.getPosition().getX(),
                             (int) bullet.getPosition().getY());
+                }
+            }
+        }
+
+        // bombs within a range of 50 pixels
+        for (String playerId: bombs.keySet()) {
+
+            if (playerId.equals(player))
+                continue;
+
+            List<Bomb> playerBombs = bombs.get(playerId);
+            for (Bomb bomb: playerBombs) {
+
+                if (ship.withinRange(bomb, RANGE_BULLET_WARN)) {
+                    update.addActor(ShipUpdate.Type.BULLET,
+                            (int) bomb.getPosition().getX(),
+                            (int) bomb.getPosition().getY());
                 }
             }
         }
@@ -273,7 +286,7 @@ public class AsteroidsState implements GameState {
                     ship.firePrimary(bullets.get(playerId));
                     break;
                 case 2:
-
+                    ship.fireSecondary(bombs.get(playerId));
                     break;
             }
         }
@@ -286,6 +299,7 @@ public class AsteroidsState implements GameState {
 
         // do collision checks
         processBulletCollisions();
+        processBombCollisions();
         processAsteroidsCollisions();
 
         // add asteroids to world if it is too empty
@@ -357,7 +371,7 @@ public class AsteroidsState implements GameState {
             if (messages != null) {
                 StringBuilder msgBuilder = new StringBuilder();
                 for (String message: messages) {
-                    msgBuilder.append(message).append(" ");
+                    msgBuilder.append(message).append("\n");
                 }
                 movieBuilder.addMessage(playerId, msgBuilder.toString());
             }
@@ -387,6 +401,10 @@ public class AsteroidsState implements GameState {
             for (Bullet bullet: playerBullets)
                 bullet.draw(movieBuilder);
 
+        for (List<Bomb> playerBombs: bombs.values())
+            for (Bomb bomb: playerBombs)
+                bomb.draw(movieBuilder);
+
         for (Ship ship: ships.values())
             ship.draw(movieBuilder);
 
@@ -403,6 +421,9 @@ public class AsteroidsState implements GameState {
 
         for (List<Bullet> playerBullets: bullets.values())
             updateActors(playerBullets);
+
+        for (List<Bomb> playerBombs: bombs.values())
+            updateActors(playerBombs);
 
         updateActors(new ArrayList<>(ships.values()));
 
@@ -427,6 +448,9 @@ public class AsteroidsState implements GameState {
 
                 if (actor instanceof Ship) {
                     expiredShips.add(ships.remove(((Ship) actor).getPlayerId()));
+                } else if (actor instanceof Bomb) {
+                    if (!((Bomb) actor).exploded())
+                        explodeBomb((Bomb) actor, null);
                 } else if (actor instanceof Bullet) {
                     Bullet bullet = ((Bullet) actor);
                     if (bullet.getResult() == null)
@@ -550,6 +574,101 @@ public class AsteroidsState implements GameState {
                             effects.add(ship.getHitEffect(bullet));
                         }
                     }
+                }
+            }
+        }
+    }
+
+    /**
+     * Process the bomb collisions with other objects in the game world.
+     * Collisions with bombs already tested.
+     */
+    private void processBombCollisions() {
+
+        for (String playerId: bombs.keySet()) {
+            Ship owner = findPlayerShip(playerId);
+            if (owner == null)
+                continue;
+
+            List<Bomb> playerBombs = bombs.get(playerId);
+            for (Bomb bomb: playerBombs) {
+                if (bomb.exploded())
+                    continue;
+
+                for (int i = 0, size = asteroids.size(); i < size; i++) {
+                    Asteroid asteroid = asteroids.get(i);
+
+                    if (bomb.collides(asteroid))
+                        explodeBomb(bomb, asteroid);
+                }
+
+                for (Ship ship: ships.values()) {
+
+                    // check for other ships
+                    if (bomb.collides(ship))
+                        explodeBomb(bomb, ship);
+                }
+            }
+        }
+    }
+
+    private void explodeBomb(Bomb bomb, Actor actor) {
+
+        bomb.hit(-1);
+
+        // add animation
+        effects.add(bomb.getHitEffect(actor));
+
+        Ship bombOwner = findPlayerShip(bomb.getPlayerId());
+        if (bombOwner == null)
+            return;
+
+        for (int i = 0, size = asteroids.size(); i < size; i++) {
+            Asteroid asteroid = asteroids.get(i);
+
+            if (bomb.withinRange(asteroid, bomb.effectRadius())) {
+
+                double distance = Math.max((bomb.getPosition().distance(asteroid.getPosition())
+                        - bomb.radius() - asteroid.radius()), 10);
+
+                if (asteroid.hit(bomb.power() * 10/distance)) {
+                    bombOwner.addScorePoints(DESTROYED_ASTEROID_SCORE);
+
+                    generateBabyAsteroids(asteroid, bomb);
+
+                    // add animation
+                    effects.add(asteroid.getExplosionEffect(bomb));
+                } else {
+                    bombOwner.addScorePoints(HIT_ASTEROID_SCORE);
+
+                    applyBulletImpactOnAsteroid(bomb, asteroid);
+
+                    // add animation
+                    effects.add(asteroid.getHitEffect(bomb));
+                }
+            }
+        }
+
+        for (Ship ship: ships.values()) {
+
+            if (bomb.withinRange(ship, bomb.effectRadius())) {
+
+                double distance = Math.max((bomb.getPosition().distance(ship.getPosition())
+                        - bomb.radius() - ship.radius()), 10);
+
+                if (ship.isShieldActive())
+                    continue;
+
+                if (ship.hit(bomb.power() * 10/distance)) {
+                    bombOwner.addScorePoints(DESTROYED_SHIP_SCORE);
+
+                    // add animation
+                    effects.add(ship.getExplosionEffect(bomb));
+                } else {
+                    bombOwner.addScorePoints(HIT_SHIP_SCORE);
+
+                    // add animation
+                    effects.add(ship.getHitEffect(bomb));
                 }
             }
         }

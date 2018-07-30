@@ -28,12 +28,26 @@ load('asteroids/wrappers/es6/AsteroidsPlayer.js');
          */
         init() {
             this.count = 0;
+
+            this.onAsteroidDetected((asteroid) => {
+                //this.log("asteroid: " + JSON.stringify(asteroid));
+            });
+
+            this.onShipDetected((ship) => {
+                //this.log("ship: " + JSON.stringify(ship));
+            });
+
+            this.onBulletDetected((bullet) => {
+                this.log("bullet: " + JSON.stringify(bullet));
+            });
         }
 
         /**
          * Execute player action
          */
         execute() {
+
+            this.log(this.health());
 
             if (this.count % 1000 === 0)
                 this.thrust();

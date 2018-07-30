@@ -10,14 +10,14 @@ import pt.up.fc.dcc.asura.utils.Vector;
  * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
  */
 public class Bullet extends Actor {
-    private static final String SPRITE_ID_FORMAT = "b%d";
+    private static final String SPRITE_ID_FORMAT = "l%d";
     private static final String[] SPRITES = {
-            "laser1.png", "laser2.png", "laser3.png", "laser4.png"
+            "l1.png", "l2.png", "l3.png", "l4.png"
     };
-    private static final int SPRITE_WIDTH = 55;
-    private static final int SPRITE_HEIGHT = 110;
-    private static final int BULLET_WIDTH = 3;
-    private static final int BULLET_HEIGHT = 6;
+    private static final int SPRITE_WIDTH = 40;
+    private static final int SPRITE_HEIGHT = 70;
+    private static final int BULLET_WIDTH = 4;
+    private static final int BULLET_HEIGHT = 7;
     private static final String BULLET_ID_FORMAT = "bullet%d";
     private static final int BULLET_LIFESPAN = 400;
     private static final int BULLET_POWER = 1;
@@ -34,7 +34,7 @@ public class Bullet extends Actor {
     protected int startTime;
     protected int power;
 
-    private int health = 1;
+    protected int health = 1;
 
     private BulletResult result;
 
@@ -44,14 +44,20 @@ public class Bullet extends Actor {
 
     public Bullet(String playerId, int teamNr, int bulletCount, Vector position, Vector velocity, int heading,
                   int lifespan) {
-        this(playerId, teamNr, bulletCount, position, velocity, heading, BULLET_LIFESPAN, BULLET_POWER);
+        this(playerId, teamNr, bulletCount, position, velocity, heading, lifespan, BULLET_POWER);
     }
 
     public Bullet(String playerId, int teamNr, int bulletCount, Vector position, Vector velocity, int heading,
                   int lifespan, int power) {
+        this(playerId, String.format(SPRITE_ID_FORMAT, teamNr % SPRITES.length), teamNr, bulletCount, position,
+                velocity, heading, lifespan, power);
+    }
+
+    public Bullet(String playerId, String spriteId, int teamNr, int bulletCount, Vector position, Vector velocity,
+                  int heading, int lifespan, int power) {
         super(position, velocity);
         this.playerId = playerId;
-        this.spriteId = String.format(SPRITE_ID_FORMAT, teamNr % SPRITES.length);
+        this.spriteId = spriteId;
         this.teamNr = teamNr;
         this.bulletId = String.format(BULLET_ID_FORMAT, bulletCount);
         this.heading = heading;
