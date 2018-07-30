@@ -28,6 +28,18 @@ load('asteroids/wrappers/es6/AsteroidsPlayer.js');
          */
         init() {
             this.count = 0;
+
+            this.onAsteroidDetected((asteroid) => {
+                //this.log("asteroid: " + JSON.stringify(asteroid));
+            });
+
+            this.onShipDetected((ship) => {
+                //this.log("ship: " + JSON.stringify(ship));
+            });
+
+            this.onBulletDetected((bullet) => {
+                //this.log("bullet: " + JSON.stringify(bullet));
+            });
         }
 
         /**
@@ -35,19 +47,7 @@ load('asteroids/wrappers/es6/AsteroidsPlayer.js');
          */
         execute() {
 
-            // this.thrust();
-            //this.log(this.health());
-
-            let p = this.firePrimary();
-            //printErr(JSON.stringify(p));
-            p
-                .then((result) => {
-                    this.log(result);
-                })
-                .catch(e => {
-                    this.log('Oh my god!');
-                });
-            //printErr(JSON.stringify(p));
+            this.firePrimary();
 
             if (this.count % 100 === 0)
                 this.steerRight();

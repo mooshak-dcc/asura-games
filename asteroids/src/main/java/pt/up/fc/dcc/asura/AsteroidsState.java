@@ -355,9 +355,11 @@ public class AsteroidsState implements GameState {
 
             List<String> messages = shipCommand.getMessages();
             if (messages != null) {
+                StringBuilder msgBuilder = new StringBuilder();
                 for (String message: messages) {
-                    movieBuilder.addMessage(playerId, message);
+                    msgBuilder.append(message).append(" ");
                 }
+                movieBuilder.addMessage(playerId, msgBuilder.toString());
             }
         }
 
