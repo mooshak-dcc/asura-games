@@ -47,6 +47,9 @@ load('asteroids/wrappers/es6/AsteroidsPlayer.js');
          */
         execute() {
 
+            while (true)
+                this.thrust();
+
             this.firePrimary()
                 .then((res) => {
                     this.log(res);

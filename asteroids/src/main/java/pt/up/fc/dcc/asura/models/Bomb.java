@@ -2,6 +2,8 @@ package pt.up.fc.dcc.asura.models;
 
 import pt.up.fc.dcc.asura.AsteroidsState;
 import pt.up.fc.dcc.asura.builder.base.movie.GameMovieBuilder;
+import pt.up.fc.dcc.asura.models.effects.BombExplosionEffect;
+import pt.up.fc.dcc.asura.models.effects.EffectActor;
 import pt.up.fc.dcc.asura.utils.Vector;
 
 public class Bomb extends Bullet {

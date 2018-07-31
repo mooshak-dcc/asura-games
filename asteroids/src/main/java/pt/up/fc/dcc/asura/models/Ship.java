@@ -2,6 +2,9 @@ package pt.up.fc.dcc.asura.models;
 
 import pt.up.fc.dcc.asura.AsteroidsState;
 import pt.up.fc.dcc.asura.builder.base.movie.GameMovieBuilder;
+import pt.up.fc.dcc.asura.models.effects.EffectActor;
+import pt.up.fc.dcc.asura.models.effects.ShipExplosionEffect;
+import pt.up.fc.dcc.asura.models.effects.ShipHitEffect;
 import pt.up.fc.dcc.asura.utils.Vector;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package pt.up.fc.dcc.asura.models;
+package pt.up.fc.dcc.asura.models.effects;
 
 import pt.up.fc.dcc.asura.builder.base.movie.GameMovieBuilder;
 import pt.up.fc.dcc.asura.utils.Vector;

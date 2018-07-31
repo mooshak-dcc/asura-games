@@ -1,7 +1,8 @@
-package pt.up.fc.dcc.asura.models;
+package pt.up.fc.dcc.asura.models.effects;
 
 import pt.up.fc.dcc.asura.AsteroidsState;
 import pt.up.fc.dcc.asura.builder.base.movie.GameMovieBuilder;
+import pt.up.fc.dcc.asura.models.DrawableActor;
 import pt.up.fc.dcc.asura.utils.Vector;
 
 /**

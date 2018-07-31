@@ -9,6 +9,7 @@ import pt.up.fc.dcc.asura.builder.base.movie.models.MooshakClassification;
 import pt.up.fc.dcc.asura.messaging.ShipCommand;
 import pt.up.fc.dcc.asura.messaging.ShipUpdate;
 import pt.up.fc.dcc.asura.models.*;
+import pt.up.fc.dcc.asura.models.effects.*;
 import pt.up.fc.dcc.asura.utils.Vector;
 
 import java.util.*;
