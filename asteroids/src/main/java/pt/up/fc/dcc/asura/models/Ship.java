@@ -5,7 +5,6 @@ import pt.up.fc.dcc.asura.builder.base.movie.GameMovieBuilder;
 import pt.up.fc.dcc.asura.utils.Vector;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Representation of a ship
@@ -217,7 +216,6 @@ public class Ship extends DrawableActor implements HasTeam {
             if (b != null) {
                 bombs.add(b);
                 energy -= BOMB_ENERGY_DECREASE;
-                Logger.getLogger("").severe("Energy: " + energy);
             }
         }
 

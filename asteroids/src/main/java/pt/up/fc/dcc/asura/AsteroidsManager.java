@@ -4,10 +4,12 @@ import pt.up.fc.dcc.asura.builder.base.*;
 import pt.up.fc.dcc.asura.builder.base.exceptions.BuilderException;
 import pt.up.fc.dcc.asura.builder.base.exceptions.PlayerException;
 import pt.up.fc.dcc.asura.builder.base.messaging.PlayerAction;
+import pt.up.fc.dcc.asura.builder.base.movie.models.MooshakClassification;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * Manager of the Asteroids.
@@ -15,6 +17,7 @@ import java.util.Map;
  * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
  */
 public class AsteroidsManager extends GameManager {
+    private static final long ACTION_TIMEOUT_MS = 1000;
 
     @Override
     public String getGameStateClassName() {
@@ -61,8 +64,7 @@ public class AsteroidsManager extends GameManager {
                 for (String playerId: players.keySet()) {
                     streamer.sendStateUpdateTo(playerId, state.getStateUpdateFor(playerId));
 
-                    // TODO: limit time for action
-                    PlayerAction action = streamer.readActionFrom(playerId);
+                    PlayerAction action = streamer.readActionWithTimeoutFrom(playerId, ACTION_TIMEOUT_MS);
                     state.execute(movieBuilder, playerId, action);
                 }
 
@@ -77,5 +79,4 @@ public class AsteroidsManager extends GameManager {
             throw new BuilderException(e.getMessage());
         }
     }
-
 }

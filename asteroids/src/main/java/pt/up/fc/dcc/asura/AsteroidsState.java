@@ -115,12 +115,7 @@ public class AsteroidsState implements GameState {
         for (int i = 0; i < nrAsteroids; i++)
             asteroids.add(generateAsteroid());
 
-
-        movieBuilder.addFrame();
-
-        for (Ship ship: ships.values()) {
-            ship.draw(movieBuilder);
-        }
+        buildFrame(movieBuilder);
     }
 
     @Override
@@ -135,7 +130,7 @@ public class AsteroidsState implements GameState {
                 switch (command.getName()) {
                     case "SHIP":
                         if (args.length != 5)
-                            throw new IllegalArgumentException("SHIP: four arguments expected" +
+                            throw new IllegalArgumentException("SHIP: five arguments expected" +
                                     " (thrust, steerLeft, steerRight, shield, fire)");
 
                         boolean thrust = Boolean.parseBoolean(String.valueOf(args[0]));
@@ -846,6 +841,8 @@ public class AsteroidsState implements GameState {
 
         if (ship == null)
             return;
+
+        //
 
         // set observations based on behaviour
         StringBuilder observationsBuilder = new StringBuilder();
