@@ -188,8 +188,10 @@
 
         _updateCurrentState (state) {
             this._state = {
-                x: state.x,
-                y: state.y,
+                position: {
+                    x: state.x,
+                    y: state.y
+                },
                 velocity: state.velocity,
                 heading: state.heading,
                 energy: state.energy,

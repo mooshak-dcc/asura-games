@@ -105,7 +105,7 @@ public class AsteroidsState implements GameState {
                     (int) (INITIAL_POSITIONS[ships.size()][0] * (Math.random() * 0.2 + 0.9)),
                     (int) (INITIAL_POSITIONS[ships.size()][1] * (Math.random() * 0.2 + 0.9)));
             ships.put(playerId, Ship.create(playerId,
-                    position, (int) Math.toDegrees(position.headingTo(worldCenter)) - 90));
+                    position, (((int) Math.toDegrees(position.headingTo(worldCenter)) - 90) + 360) % 360));
             bullets.put(playerId, new LinkedList<>());
             bombs.put(playerId, new LinkedList<>());
             bulletResults.put(playerId, new LinkedList<>());
