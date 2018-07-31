@@ -47,18 +47,15 @@ load('asteroids/wrappers/es6/AsteroidsPlayer.js');
          */
         execute() {
 
-            while (true)
-                this.thrust();
-
-            this.firePrimary()
-                .then((res) => {
-                    this.log(res);
-                });
-
             this.log(this.state().health);
 
             if (this.count % 100 === 0)
                 this.fireSecondary();
+            else
+                this.firePrimary()
+                    .then((res) => {
+                        this.log(res);
+                    });
 
             if (this.count % 100 === 0)
                 this.steerRight();
