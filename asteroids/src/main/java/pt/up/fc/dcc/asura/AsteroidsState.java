@@ -42,8 +42,8 @@ public class AsteroidsState implements GameState {
             new int[] { GAME_WORLD_WIDTH * 3 / 4, GAME_WORLD_HEIGHT / 4},
             new int[] { GAME_WORLD_WIDTH / 4, GAME_WORLD_HEIGHT * 3 / 4},
     };
+    private static final double RANGE_SHIP_WARN = 250;
     private static final double RANGE_BULLET_WARN = 50;
-    private static final double RANGE_SHIP_WARN = 50;
 
     private static final int HIT_ASTEROID_SCORE = 2;
     private static final int HIT_SHIP_SCORE = 5;

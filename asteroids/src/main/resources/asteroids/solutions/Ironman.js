@@ -49,12 +49,17 @@ load('asteroids/wrappers/es6/AsteroidsPlayer.js');
 
             this.log(this.state().health);
 
+            this.shield();
+
             if (this.count % 100 === 0)
                 this.fireSecondary();
             else
                 this.firePrimary()
                     .then((res) => {
                         this.log(res);
+                    })
+                    .catch(() => {
+                        this.log("LOCK")
                     });
 
             if (this.count % 100 === 0)

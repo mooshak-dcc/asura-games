@@ -22,8 +22,10 @@
             super();
 
             this._state = {
-                x: 0,
-                y: 0,
+                position: {
+                    x: 0,
+                    y: 0
+                },
                 velocity: 0.0,
                 heading: 0.0,
                 energy: 0,

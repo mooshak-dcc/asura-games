@@ -207,6 +207,11 @@ public class Ship extends DrawableActor implements HasTeam {
                 b.setResult(BulletResult.WEAPON_LOCKED);
                 bullets.add(b);
             }
+        } else { // hack: add expired bullet so that bullet result is sent to player
+            Bullet b = new Bullet(playerId, teamNr, fireCount, new Vector(-1, -1), new Vector(-1, -1), 0);
+            b.hit(-1);
+            b.setResult(BulletResult.WEAPON_LOCKED);
+            bullets.add(b);
         }
 
         fireCount++;

@@ -21,7 +21,7 @@ public class Bullet extends Actor {
     private static final int BULLET_WIDTH = 4;
     private static final int BULLET_HEIGHT = 7;
     private static final String BULLET_ID_FORMAT = "bullet%d";
-    private static final int BULLET_LIFESPAN = 400;
+    private static final int BULLET_LIFESPAN = 200;
     private static final int BULLET_POWER = 1;
 
     protected String spriteId;
