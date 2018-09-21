@@ -12,23 +12,23 @@ public abstract class Weapon {
 
     protected Ship ship;
 
-    private int lastRechargeTime = 0;
+    private long lastRechargeTime = 0;
 
     public Weapon(Ship ship) {
         this.ship = ship;
     }
 
-    public Bullet fire() {
+    public Bullet fire(long time) {
         if (lastRechargeTime == 0
-                || AsteroidsState.time - lastRechargeTime > weaponRechargeTime()) {
-            lastRechargeTime = AsteroidsState.time;
-            return doFire();
+                || time - lastRechargeTime > weaponRechargeTime()) {
+            lastRechargeTime = time;
+            return doFire(time);
         }
 
         return null;
     }
 
-    protected abstract Bullet doFire();
+    protected abstract Bullet doFire(long time);
 
     protected int weaponRechargeTime() {
         return WEAPON_RECHARGE_TIME;

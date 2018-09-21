@@ -12,12 +12,12 @@ public class AsteroidHitEffect extends EffectActor {
     private int heading;
     private int size;
 
-    public AsteroidHitEffect(Vector position, int heading, int size) {
-        this(position, heading, new Vector(0, 0), size);
+    public AsteroidHitEffect(long startTime, Vector position, int heading, int size) {
+        this(startTime, position, heading, new Vector(0, 0), size);
     }
 
-    public AsteroidHitEffect(Vector position, int heading, Vector velocity, int size) {
-        super(SPRITE_ID, SPRITE_SIZE, position,
+    public AsteroidHitEffect(long startTime, Vector position, int heading, Vector velocity, int size) {
+        super(startTime, SPRITE_ID, SPRITE_SIZE, position,
                 velocity, ANIMATION_LENGTH * 2);
         this.position = position;
         this.heading = heading;
@@ -30,7 +30,7 @@ public class AsteroidHitEffect extends EffectActor {
     }
 
     @Override
-    public void draw(GameMovieBuilder builder) {
+    public void draw(long startTime, GameMovieBuilder builder) {
         drawSprite(builder, 0, 0, 16 * size, heading);
     }
 

@@ -13,6 +13,7 @@ import pt.up.fc.dcc.asura.models.effects.*;
 import pt.up.fc.dcc.asura.utils.Vector;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Stores the current state of the Asteroids game
@@ -22,11 +23,13 @@ import java.util.*;
 public class AsteroidsState implements GameState {
     public static final int GAME_WORLD_WIDTH = 600;
     public static final int GAME_WORLD_HEIGHT = 600;
-    private static final String MSG_WINNER = "Congratulations, %s! You have survived during the bloody War of Asteroids." +
-            " Your name, %s, will be remembered by the whole world (even if only you survived).";
-    private static final String MSG_MULTIPLE_WINNER = "Congratulations, %s! There is still a lot of work to deworm the " +
+    private static final String MSG_WINNER = "Congratulations, %s. You have won!";
+    private static final String MSG_NOT_WINNER = "%s, your score was not good enough!";
+    private static final String MSG_LOSER = "%s, your score was the lowest!";
+    private static final String MSG_SINGLE_SURVIVOR = "You have survived during the bloody War of Asteroids.";
+    private static final String MSG_MULTIPLE_SURVIVORS = "There is still a lot of work to deworm the " +
             "space, but you will have more chances.";
-    private static final String MSG_LOSER = "%s, what can I say to you?! You were blown away. Get your ship fixed before" +
+    private static final String MSG_DEAD = "You were blown away. Get your ship fixed before" +
             " competing with the space giants.";
     private static final String BACKGROUND_SPRITE_ID = "background";
     private static final String BACKGROUND_SPRITE = "background.jpg";
@@ -55,7 +58,7 @@ public class AsteroidsState implements GameState {
     private static final int HEALTH_5_POINT_SCORE = 2;
 
     // global game time i.e. current frame
-    public static int time = 1;
+    private long time = 1;
 
     private int backgroundX = 0;
 
@@ -262,7 +265,7 @@ public class AsteroidsState implements GameState {
             ShipCommand shipCommand = roundCommands.get(playerId);
 
             Ship ship = findPlayerShip(playerId);
-            if (ship == null || ship.expired())
+            if (ship == null || ship.expired(time))
                 continue;
 
             if (shipCommand.isSteerLeft())
@@ -272,17 +275,17 @@ public class AsteroidsState implements GameState {
                 ship.steerRight();
 
             if (shipCommand.isThrust())
-                ship.thrust();
+                ship.thrust(time);
 
             if (shipCommand.isShield())
                 ship.activateShield();
 
             switch (shipCommand.getFire()) {
                 case 1:
-                    ship.firePrimary(bullets.get(playerId));
+                    ship.firePrimary(time, bullets.get(playerId));
                     break;
                 case 2:
-                    ship.fireSecondary(bombs.get(playerId));
+                    ship.fireSecondary(time, bombs.get(playerId));
                     break;
             }
         }
@@ -310,8 +313,8 @@ public class AsteroidsState implements GameState {
 
     @Override
     public boolean isRunning() {
-        return ships.size() > 1 && time < 10000 ||
-                expiredShips.getLast().getKilledOn() > (time - FPS * 2);
+        return ships.size() > 1 && time < 10000 || (!expiredShips.isEmpty() &&
+                expiredShips.getLast().getKilledOn() > (time - FPS * 2));
     }
 
     @Override
@@ -323,8 +326,16 @@ public class AsteroidsState implements GameState {
 
         movieBuilder.restoreFrame();
 
-        for (String playerId: players.keySet())
-            updatePlayerStatus(movieBuilder, playerId);
+        // sort players by points
+        List<Ship> allShips = new ArrayList<>(ships.values());
+        allShips.addAll(expiredShips);
+        List<String> sortedPlayers = allShips.stream()
+                .sorted(Comparator.comparingInt(Ship::getScore).reversed())
+                .map(Ship::getPlayerId)
+                .collect(Collectors.toList());
+
+        for (int i = 1; i <= sortedPlayers.size(); i++)
+            updatePlayerStatus(movieBuilder, sortedPlayers.get(i-1), i);
     }
 
     /**
@@ -391,21 +402,21 @@ public class AsteroidsState implements GameState {
     private void drawActors(GameMovieBuilder movieBuilder) {
 
         for (Asteroid asteroid: asteroids) 
-            asteroid.draw(movieBuilder);
+            asteroid.draw(time, movieBuilder);
 
         for (List<Bullet> playerBullets: bullets.values())
             for (Bullet bullet: playerBullets)
-                bullet.draw(movieBuilder);
+                bullet.draw(time, movieBuilder);
 
         for (List<Bomb> playerBombs: bombs.values())
             for (Bomb bomb: playerBombs)
-                bomb.draw(movieBuilder);
+                bomb.draw(time, movieBuilder);
 
         for (Ship ship: ships.values())
-            ship.draw(movieBuilder);
+            ship.draw(time, movieBuilder);
 
         for (EffectActor effect: effects)
-            effect.draw(movieBuilder);
+            effect.draw(time, movieBuilder);
     }
 
     /**
@@ -440,7 +451,7 @@ public class AsteroidsState implements GameState {
 
             actor.onUpdate();
 
-            if (actor.expired()) {
+            if (actor.expired(time)) {
 
                 if (actor instanceof Ship) {
                     expiredShips.add(ships.remove(((Ship) actor).getPlayerId()));
@@ -507,7 +518,7 @@ public class AsteroidsState implements GameState {
                         bullet.hit(-1);
 
                         // add animation
-                        effects.add(bullet.getHitEffect(asteroid));
+                        effects.add(bullet.getHitEffect(time, asteroid));
 
                         if (asteroid.hit(bullet.power())) {
                             bullet.setResult(BulletResult.DESTROYED_ASTEROID);
@@ -517,7 +528,7 @@ public class AsteroidsState implements GameState {
                             generateBabyAsteroids(asteroid, bullet);
 
                             // add animation
-                            effects.add(asteroid.getExplosionEffect(bullet));
+                            effects.add(asteroid.getExplosionEffect(time, bullet));
                         } else {
                             bullet.setResult(BulletResult.HIT_ASTEROID);
 
@@ -526,7 +537,7 @@ public class AsteroidsState implements GameState {
                             applyBulletImpactOnAsteroid(bullet, asteroid);
 
                             // add animation
-                            effects.add(asteroid.getHitEffect(bullet));
+                            effects.add(asteroid.getHitEffect(time, bullet));
                         }
                     }
                 }
@@ -538,7 +549,7 @@ public class AsteroidsState implements GameState {
                         bullet.hit(-1);
 
                         // add animation
-                        effects.add(bullet.getHitEffect(ship));
+                        effects.add(bullet.getHitEffect(time, ship));
 
                         // bullets don't kill self
                         if (ship.getPlayerId().equals(playerId))
@@ -554,20 +565,20 @@ public class AsteroidsState implements GameState {
                             continue;
                         }
 
-                        if (ship.hit(bullet.power())) {
+                        if (ship.hit(time, bullet.power())) {
                             bullet.setResult(BulletResult.DESTROYED_SHIP);
 
                             owner.addScorePoints(DESTROYED_SHIP_SCORE);
 
                             // add animation
-                            effects.add(ship.getExplosionEffect(bullet));
+                            effects.add(ship.getExplosionEffect(time, bullet));
                         } else {
                             bullet.setResult(BulletResult.HIT_SHIP);
 
                             owner.addScorePoints(HIT_SHIP_SCORE);
 
                             // add animation
-                            effects.add(ship.getHitEffect(bullet));
+                            effects.add(ship.getHitEffect(time, bullet));
                         }
                     }
                 }
@@ -613,7 +624,7 @@ public class AsteroidsState implements GameState {
         bomb.hit(-1);
 
         // add animation
-        effects.add(bomb.getHitEffect(actor));
+        effects.add(bomb.getHitEffect(time, actor));
 
         Ship bombOwner = findPlayerShip(bomb.getPlayerId());
         if (bombOwner == null)
@@ -633,14 +644,14 @@ public class AsteroidsState implements GameState {
                     generateBabyAsteroids(asteroid, bomb);
 
                     // add animation
-                    effects.add(asteroid.getExplosionEffect(bomb));
+                    effects.add(asteroid.getExplosionEffect(time, bomb));
                 } else {
                     bombOwner.addScorePoints(HIT_ASTEROID_SCORE);
 
                     applyBulletImpactOnAsteroid(bomb, asteroid);
 
                     // add animation
-                    effects.add(asteroid.getHitEffect(bomb));
+                    effects.add(asteroid.getHitEffect(time, bomb));
                 }
             }
         }
@@ -661,18 +672,18 @@ public class AsteroidsState implements GameState {
                     continue;
                 }
 
-                if (ship.hit(bomb.power() * 10/distance)) {
+                if (ship.hit(time, bomb.power() * 10/distance)) {
                     if (!ship.getPlayerId().equals(bombOwner.getPlayerId()))
                         bombOwner.addScorePoints(DESTROYED_SHIP_SCORE);
 
                     // add animation
-                    effects.add(ship.getExplosionEffect(bomb));
+                    effects.add(ship.getExplosionEffect(time, bomb));
                 } else {
                     if (!ship.getPlayerId().equals(bombOwner.getPlayerId()))
                         bombOwner.addScorePoints(HIT_SHIP_SCORE);
 
                     // add animation
-                    effects.add(ship.getHitEffect(bomb));
+                    effects.add(ship.getHitEffect(time, bomb));
                 }
             }
         }
@@ -691,14 +702,14 @@ public class AsteroidsState implements GameState {
 
                 if (asteroid.collides(ship)) {
 
-                    effects.add(asteroid.getHitEffect(ship));
+                    effects.add(asteroid.getHitEffect(time, ship));
 
                     if (!ship.isShieldActive()) {
 
                         applyShipImpactOnAsteroid(ship, asteroid);
 
-                        ship.hit(-1);
-                        effects.add(ship.getExplosionEffect(asteroid));
+                        ship.hit(time, -1);
+                        effects.add(ship.getExplosionEffect(time, asteroid));
                     } else {
                         asteroid.hit(-1);
 
@@ -706,13 +717,13 @@ public class AsteroidsState implements GameState {
 
                         generateBabyAsteroids(asteroid, ship);
                         ship.setVelocity(new Vector(0, 0));
-                        effects.add(asteroid.getExplosionEffect(ship));
+                        effects.add(asteroid.getExplosionEffect(time, ship));
                         return;
                     }
 
                     if (asteroid.hit(2)) {
                         generateBabyAsteroids(asteroid, ship);
-                        effects.add(asteroid.getExplosionEffect(ship));
+                        effects.add(asteroid.getExplosionEffect(time, ship));
                     }
                 }
             }
@@ -811,7 +822,7 @@ public class AsteroidsState implements GameState {
             boolean placed = true;
             for (Ship ship: ships.values()) {
 
-                if (ship.expired())
+                if (ship.expired(time))
                     continue;
 
                 if (ship.getPosition().distance(position) < MIN_ASTEROID_SHIP_DISTANCE) {
@@ -835,7 +846,7 @@ public class AsteroidsState implements GameState {
      * @param movieBuilder {@link GameMovieBuilder} the game movie builder
      * @param playerId {@link String} ID of the player
      */
-    private void updatePlayerStatus(GameMovieBuilder movieBuilder, String playerId) {
+    private void updatePlayerStatus(GameMovieBuilder movieBuilder, String playerId, int position) {
 
         String name = players.get(playerId);
         Ship ship = findPlayerShip(playerId);
@@ -843,65 +854,92 @@ public class AsteroidsState implements GameState {
         if (ship == null)
             return;
 
-        //
-
         // set observations based on behaviour
         StringBuilder observationsBuilder = new StringBuilder();
+
+        // add message for winners/losers
+        if (position == 1) {
+            movieBuilder.addMessage(playerId, String.format(MSG_WINNER, name));
+            observationsBuilder.append(String.format(MSG_WINNER, name)).append('\n');
+        } else if (position != ships.size()) {
+            movieBuilder.addMessage(playerId, String.format(MSG_NOT_WINNER, name));
+            observationsBuilder.append(String.format(MSG_NOT_WINNER, name)).append('\n');
+        } else {
+            movieBuilder.addMessage(playerId, String.format(MSG_LOSER, name));
+            observationsBuilder.append(String.format(MSG_LOSER, name)).append('\n');
+        }
+
         if (ship.isAlive()) {
             ship.addScorePoints((int) (Math.floor(ship.getHealth() / 5) * HEALTH_5_POINT_SCORE));
 
             // set message
             if (ships.size() > 1)
-                movieBuilder.addMessage(playerId, String.format(MSG_MULTIPLE_WINNER, name));
+                observationsBuilder
+                        .append(MSG_MULTIPLE_SURVIVORS)
+                        .append('\n');
             else
-                movieBuilder.addMessage(playerId, String.format(MSG_WINNER, name, name));
+                observationsBuilder
+                        .append(MSG_SINGLE_SURVIVOR)
+                        .append('\n');
 
             // calculate observations
             if (ship.getHealth() >= Ship.MAX_HEALTH - HEALTH_TOLERANCE) {
-                observationsBuilder.append("Your ship remained intact, that's amazing. Try other opponents, maybe" +
-                        " these were newbies thrown into space to save on food.");
+                observationsBuilder
+                        .append("Your ship remained intact, that's amazing. Try other opponents, maybe these were " +
+                                "newbies thrown into space to save on food.")
+                        .append('\n');
             } else if (ship.getHealth() <= HEALTH_TOLERANCE * 2) {
-                observationsBuilder.append("Your ship was not destroyed, but you were lucky.");
+                observationsBuilder
+                        .append("Your ship was not destroyed, but you were lucky.")
+                        .append('\n');
 
                 if (ship.getEnergy() > ENERGY_TOLERANCE * 2) {
                     observationsBuilder
-                            .append(" ")
                             .append("Use your energy to protect yourself from the danger of the space with " +
-                                    "the shield. It's better to trust in your mind than in luck.");
+                                    "the shield. It's better to trust in your mind than in luck.")
+                            .append('\n');
                 } else {
                     observationsBuilder
-                            .append(" ")
                             .append("Are you sure that you are using your energy efficiently? Use it, " +
-                                    "but use it wisely.");
+                                    "but use it wisely.")
+                            .append('\n');
                 }
             } else {
-                observationsBuilder.append("You haven't died and you were not so close to death. But remember," +
-                        " this was just a battle and there are a number of enemies out there to fear.");
+                observationsBuilder
+                        .append("You haven't died and you were not so close to death. But remember, this was just a" +
+                                " battle and there are a number of enemies out there to fear.")
+                        .append('\n');
             }
         } else {
-            movieBuilder.addMessage(playerId, String.format(MSG_LOSER, name));
+            observationsBuilder
+                    .append(MSG_DEAD)
+                    .append('\n');
 
             // calculate observations
             if (ship.getEnergy() > ENERGY_TOLERANCE * 2) {
-                observationsBuilder.append("You should think about how to use your energy better," +
-                        " particularly on deciding when you should activate the shield. You got killed" +
-                        " with enough energy to activate it.");
+                observationsBuilder
+                        .append("You should think about how to use your energy better, particularly on deciding when " +
+                                "you should activate the shield. You got killed with enough energy to activate it.")
+                        .append('\n');
             } else {
-                observationsBuilder.append("Are you sure that you are using your energy efficiently? " +
-                        "You should keep enough energy for activating the shield in case of emergency.");
+                observationsBuilder
+                        .append("Are you sure that you are using your energy efficiently? You should keep enough" +
+                                " energy for activating the shield in case of emergency.")
+                        .append('\n');
             }
         }
 
         // shots
         double fireCountScoreRatio = (double) ship.getScore() / ship.getFireCount();
-        if (fireCountScoreRatio >= RATIO_FIRE_COUNT_SCORE) {
-            observationsBuilder.append(" ").append("About your shots, you are doing good.");
+        if (fireCountScoreRatio >= RATIO_FIRE_COUNT_SCORE * 2) {
+            observationsBuilder
+                    .append("About your shots, you are doing good.")
+                    .append('\n');
         } else if (fireCountScoreRatio <= RATIO_FIRE_COUNT_SCORE / 2) {
-            observationsBuilder.append(" ").append("About your shots, it seems that you are doing them randomly. " +
-                    "Shooting is all about maths.");
+            observationsBuilder
+                    .append("About your shots, it seems that you are doing them randomly. Shooting is all about maths.")
+                    .append('\n');
         }
-
-        movieBuilder.addMessage(playerId, ship.getScore() + "--");
 
         // set player submission status
         movieBuilder.setClassification(playerId, MooshakClassification.ACCEPTED);

@@ -33,29 +33,29 @@ public class Bullet extends Actor {
 
     protected int heading;
     protected int lifespan;
-    protected int startTime;
+    protected long startTime;
     protected int power;
 
     protected int health = 1;
 
     private BulletResult result;
 
-    public Bullet(String playerId, int teamNr, int bulletCount, Vector position, Vector velocity, int heading) {
-        this(playerId, teamNr, bulletCount, position, velocity, heading, BULLET_LIFESPAN, BULLET_POWER);
+    public Bullet(String playerId, int teamNr, long startTime, int bulletCount, Vector position, Vector velocity, int heading) {
+        this(playerId, teamNr, startTime, bulletCount, position, velocity, heading, BULLET_LIFESPAN, BULLET_POWER);
     }
 
-    public Bullet(String playerId, int teamNr, int bulletCount, Vector position, Vector velocity, int heading,
+    public Bullet(String playerId, int teamNr, long startTime, int bulletCount, Vector position, Vector velocity, int heading,
                   int lifespan) {
-        this(playerId, teamNr, bulletCount, position, velocity, heading, lifespan, BULLET_POWER);
+        this(playerId, teamNr, startTime, bulletCount, position, velocity, heading, lifespan, BULLET_POWER);
     }
 
-    public Bullet(String playerId, int teamNr, int bulletCount, Vector position, Vector velocity, int heading,
+    public Bullet(String playerId, int teamNr, long startTime, int bulletCount, Vector position, Vector velocity, int heading,
                   int lifespan, int power) {
-        this(playerId, String.format(SPRITE_ID_FORMAT, teamNr % SPRITES.length), teamNr, bulletCount, position,
+        this(playerId, String.format(SPRITE_ID_FORMAT, teamNr % SPRITES.length), teamNr, startTime, bulletCount, position,
                 velocity, heading, lifespan, power);
     }
 
-    public Bullet(String playerId, String spriteId, int teamNr, int bulletCount, Vector position, Vector velocity,
+    public Bullet(String playerId, String spriteId, int teamNr, long startTime, int bulletCount, Vector position, Vector velocity,
                   int heading, int lifespan, int power) {
         super(position, velocity);
         this.playerId = playerId;
@@ -64,7 +64,7 @@ public class Bullet extends Actor {
         this.bulletId = String.format(BULLET_ID_FORMAT, bulletCount);
         this.heading = heading;
         this.lifespan = lifespan;
-        this.startTime = AsteroidsState.time;
+        this.startTime = startTime;
         this.power = power;
     }
 
@@ -98,15 +98,15 @@ public class Bullet extends Actor {
         return health <= 0;
     }
 
-    public EffectActor getHitEffect(Actor actor) {
+    public EffectActor getHitEffect(long time, Actor actor) {
         Vector effectVelocity = (Vector) velocity.clone();
 
         if (actor instanceof Asteroid) {
             effectVelocity.scale(0.05);
-            return new BulletHitEffect(teamNr, position, heading, effectVelocity);
+            return new BulletHitEffect(time, teamNr, position, heading, effectVelocity);
         } else if (actor instanceof Ship) {
             effectVelocity.scale(0.1);
-            return new BulletHitEffect(teamNr, position, heading, effectVelocity);
+            return new BulletHitEffect(time, teamNr, position, heading, effectVelocity);
         }
 
         return null;
@@ -123,12 +123,12 @@ public class Bullet extends Actor {
     }
 
     @Override
-    public boolean expired() {
-        return health <= 0 || (AsteroidsState.time - startTime) > lifespan;
+    public boolean expired(long time) {
+        return health <= 0 || (time - startTime) > lifespan;
     }
 
     @Override
-    public void draw(GameMovieBuilder builder) {
+    public void draw(long time, GameMovieBuilder builder) {
 
         builder.addItem(spriteId,
                 (int) position.getX(), (int) position.getY(),

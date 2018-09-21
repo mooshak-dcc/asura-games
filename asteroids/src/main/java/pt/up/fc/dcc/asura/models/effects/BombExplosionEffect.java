@@ -15,12 +15,12 @@ public class BombExplosionEffect extends EffectActor implements HasTeam {
     private int teamNr;
     private int heading;
 
-    public BombExplosionEffect(int teamNr, Vector position, int heading) {
-        this(teamNr, position, heading, new Vector(0, 0));
+    public BombExplosionEffect(long startTime, int teamNr, Vector position, int heading) {
+        this(startTime, teamNr, position, heading, new Vector(0, 0));
     }
 
-    public BombExplosionEffect(int teamNr, Vector position, int heading, Vector velocity) {
-        super(String.format(SPRITE_ID_FORMAT, teamNr), SPRITE_SIZE, position,
+    public BombExplosionEffect(long startTime, int teamNr, Vector position, int heading, Vector velocity) {
+        super(startTime, String.format(SPRITE_ID_FORMAT, teamNr), SPRITE_SIZE, position,
                 velocity, ANIMATION_LENGTH * 2);
         this.teamNr = teamNr;
         this.position = position;
@@ -38,7 +38,7 @@ public class BombExplosionEffect extends EffectActor implements HasTeam {
     }
 
     @Override
-    public void draw(GameMovieBuilder builder) {
+    public void draw(long time, GameMovieBuilder builder) {
         drawSprite(builder, 0, 0, 100, heading);
     }
 

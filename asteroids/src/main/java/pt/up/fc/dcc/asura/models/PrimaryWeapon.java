@@ -10,7 +10,7 @@ public class PrimaryWeapon extends Weapon {
     }
 
     @Override
-    protected Bullet doFire() {
+    protected Bullet doFire(long time) {
         Vector velocity = new Vector(0D, BULLET_SPEED);
         velocity.rotate2d(Math.toRadians(ship.getHeading()));
         velocity.add(ship.getVelocity());
@@ -20,7 +20,7 @@ public class PrimaryWeapon extends Weapon {
         addToPos.rotate2d(Math.toRadians(ship.getHeading()));
         position.add(addToPos);
 
-        return new Bullet(ship.getPlayerId(), ship.getTeamNr(), ship.getFireCount(), position, velocity,
+        return new Bullet(ship.getPlayerId(), ship.getTeamNr(), time, ship.getFireCount(), position, velocity,
                 ship.getHeading());
     }
 }

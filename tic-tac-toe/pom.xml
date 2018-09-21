@@ -3,10 +3,10 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>pt.up.fc.dcc.asura</groupId>
-    <artifactId>asteroids</artifactId>
+    <artifactId>tic-tac-toe</artifactId>
     <packaging>jar</packaging>
     <version>0.0.1</version>
-    <name>asteroids</name>
+    <name>Tic Tac Toe</name>
 
 
     <properties>
@@ -74,7 +74,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven.jar.plugin}</version>
                 <configuration>
-                    <finalName>asteroids</finalName>
+                    <finalName>tic-tac-toe</finalName>
                     <excludes>
                         <exclude>**/log4j.properties</exclude>
                         <exclude>**/index.html</exclude>
@@ -129,7 +129,7 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <finalName>asteroids</finalName>
+                    <finalName>tic-tac-toe</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
@@ -162,7 +162,7 @@
                 <configuration>
                     <includePluginDependencies>true</includePluginDependencies>
                     <mainClass>pt.up.fc.dcc.asura.builder.GameServer</mainClass>
-                    <commandlineArgs>asteroids pt.up.fc.dcc.asura.AsteroidsManager es6 Ironman.js ironman</commandlineArgs>
+                    <commandlineArgs>tictactoe pt.up.fc.dcc.asura.tictactoe.TicTacToeManager java MyTicTacToePlayer.java player-java java MyTicTacToePlayer.java player2-java</commandlineArgs>
                     <systemProperties>
                         <systemProperty>
                             <key>js.interpreter</key>

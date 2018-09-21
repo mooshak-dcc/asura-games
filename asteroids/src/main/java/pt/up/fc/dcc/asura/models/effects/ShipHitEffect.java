@@ -11,12 +11,12 @@ public class ShipHitEffect extends EffectActor {
 
     private int heading;
 
-    public ShipHitEffect(Vector position, int heading) {
-        this(position, heading, new Vector(0, 0));
+    public ShipHitEffect(long startTime, Vector position, int heading) {
+        this(startTime, position, heading, new Vector(0, 0));
     }
 
-    public ShipHitEffect(Vector position, int heading, Vector velocity) {
-        super(SPRITE_ID, SPRITE_SIZE, position,
+    public ShipHitEffect(long startTime, Vector position, int heading, Vector velocity) {
+        super(startTime, SPRITE_ID, SPRITE_SIZE, position,
                 velocity, ANIMATION_LENGTH * 2);
         this.position = position;
         this.heading = heading;
@@ -28,7 +28,7 @@ public class ShipHitEffect extends EffectActor {
     }
 
     @Override
-    public void draw(GameMovieBuilder builder) {
+    public void draw(long time, GameMovieBuilder builder) {
         drawSprite(builder, 0, 0, 12, heading);
     }
 

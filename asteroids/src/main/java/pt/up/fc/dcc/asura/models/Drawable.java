@@ -12,7 +12,8 @@ public interface Drawable {
     /**
      * Draw the model on the game movie.
      *
+     * @param time {@code long} time
      * @param builder {@link GameMovieBuilder} the game movie builder
      */
-    void draw(GameMovieBuilder builder);
+    void draw(long time, GameMovieBuilder builder);
 }

@@ -12,12 +12,12 @@ public class ShipExplosionEffect extends EffectActor {
 
     private int heading;
 
-    public ShipExplosionEffect(Vector position, int heading, int size) {
-        this(position, heading, new Vector(0, 0));
+    public ShipExplosionEffect(long startTime, Vector position, int heading, int size) {
+        this(startTime, position, heading, new Vector(0, 0));
     }
 
-    public ShipExplosionEffect(Vector position, int heading, Vector velocity) {
-        super(SPRITE_ID, SPRITE_SIZE, position, velocity, ANIMATION_LENGTH);
+    public ShipExplosionEffect(long startTime, Vector position, int heading, Vector velocity) {
+        super(startTime, SPRITE_ID, SPRITE_SIZE, position, velocity, ANIMATION_LENGTH);
         this.position = position;
         this.heading = heading;
 
@@ -26,7 +26,7 @@ public class ShipExplosionEffect extends EffectActor {
     }
 
     @Override
-    public void draw(GameMovieBuilder builder) {
+    public void draw(long time, GameMovieBuilder builder) {
         drawSprite(builder, 0, 0, (int) (EXPLOSION_RADIUS * 2), heading);
     }
 

@@ -26,7 +26,7 @@ public abstract class NonPlayerAliveActor extends DrawableActor {
     }
 
     @Override
-    public boolean expired() {
+    public boolean expired(long time) {
         return health <= 0;
     }
 }

@@ -10,18 +10,16 @@ public class AsteroidExplosionEffect extends EffectActor {
     private static final double EXPLOSION_RADIUS = 16D;
     private static final int ANIMATION_LENGTH = 30;
 
-    private Vector position;
     private int heading;
     private int size;
 
-    public AsteroidExplosionEffect(Vector position, int heading, int size) {
-        this(position, heading, new Vector(0, 0), size);
+    public AsteroidExplosionEffect(long startTime, Vector position, int heading, int size) {
+        this(startTime, position, heading, new Vector(0, 0), size);
     }
 
-    public AsteroidExplosionEffect(Vector position, int heading, Vector velocity, int size) {
-        super(SPRITE_ID, SPRITE_SIZE, position,
+    public AsteroidExplosionEffect(long startTime, Vector position, int heading, Vector velocity, int size) {
+        super(startTime, SPRITE_ID, SPRITE_SIZE, position,
                 velocity, ANIMATION_LENGTH);
-        this.position = position;
         this.heading = heading;
         this.size = size;
 
@@ -30,7 +28,7 @@ public class AsteroidExplosionEffect extends EffectActor {
     }
 
     @Override
-    public void draw(GameMovieBuilder builder) {
+    public void draw(long startTime, GameMovieBuilder builder) {
         drawSprite(builder, 0, 0, (int) (EXPLOSION_RADIUS * 2 * size), heading);
     }
 

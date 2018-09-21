@@ -1,32 +1,37 @@
-package pt.up.fc.dcc.asura;
+package pt.up.fc.dcc.asura.tictactoe;
 
 import pt.up.fc.dcc.asura.builder.base.*;
 import pt.up.fc.dcc.asura.builder.base.exceptions.BuilderException;
 import pt.up.fc.dcc.asura.builder.base.exceptions.PlayerException;
+import pt.up.fc.dcc.asura.builder.base.messaging.Command;
 import pt.up.fc.dcc.asura.builder.base.messaging.PlayerAction;
-import pt.up.fc.dcc.asura.builder.base.movie.models.MooshakClassification;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
 
 /**
- * Manager of the Asteroids.
+ * Manager of the Tic Tac Toe.
  *
  * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
  */
-public class AsteroidsManager extends GameManager {
-    private static final long ACTION_TIMEOUT_MS = 1000;
+public class TicTacToeManager extends GameManager {
+    
+    @Override
+    public String getGameName() {
+        return "Tic Tac Toe";
+    }
 
     @Override
     public String getGameStateClassName() {
-        return AsteroidsState.class.getCanonicalName();
+        return TicTacToeState.class.getCanonicalName();
     }
 
     @Override
     public int getMaxPlayersPerMatch() {
-        return 4;
+        return 2;
     }
 
     @Override
@@ -53,24 +58,35 @@ public class AsteroidsManager extends GameManager {
             // prepare state
             state.prepare(movieBuilder, getGameName(), playerNames);
 
-            // send initial update to players
-            for (String playerId: players.keySet()) {
-                streamer.sendStateUpdateTo(playerId, state.getStateUpdateFor(playerId));
-            }
+            // TODO: run game
 
-            // run game
+            // flip coin
+            List<String> playerIds = new ArrayList<>(players.keySet());
+
+            int crosses = (int) Math.round(Math.random());
+
+            PlayerAction xSymbolAction = new PlayerAction();
+            xSymbolAction.setCommand(new Command("SYMBOL", "X"));
+            state.execute(movieBuilder, playerIds.get(crosses), xSymbolAction);
+
+            PlayerAction oSymbolAction = new PlayerAction();
+            oSymbolAction.setCommand(new Command("SYMBOL", "O"));
+            state.execute(movieBuilder, playerIds.get((crosses + 1) % 2), oSymbolAction);
+
+            int turn = crosses;
             while (state.isRunning()) {
+                String player = playerIds.get(turn);
 
-                for (String playerId: players.keySet()) {
-                    streamer.sendStateUpdateTo(playerId, state.getStateUpdateFor(playerId));
+                streamer.sendStateUpdateTo(player, state.getStateUpdateFor(player));
 
-                    PlayerAction action = streamer.readActionWithTimeoutFrom(playerId, ACTION_TIMEOUT_MS);
-                    state.execute(movieBuilder, playerId, action);
-                }
+                state.execute(movieBuilder, player, streamer.readActionFrom(player));
 
-                // players execute actions at the same time
                 state.endRound(movieBuilder);
+
+                turn = (turn + 1) % 2;
             }
+
+            // END TODO
 
             // finalize state
             state.finalize(movieBuilder);
@@ -79,4 +95,5 @@ public class AsteroidsManager extends GameManager {
             throw new BuilderException(e.getMessage());
         }
     }
+
 }

@@ -63,7 +63,7 @@ public class Ship extends DrawableActor implements HasTeam {
     private int shieldActiveCounter = 0;
 
     // recharges
-    private int lastThrustTime = 0;
+    private long lastThrustTime = 0;
 
     // weapons
     private Weapon primaryWeapon;
@@ -76,7 +76,7 @@ public class Ship extends DrawableActor implements HasTeam {
     private int score = 0;
 
     // frame at which player was killed
-    private int killedOn = 0;
+    private long killedOn = 0;
 
     private Ship(String playerId, String spriteId, String shieldSpriteId, int teamNr,
                  Vector position, Vector velocity, int heading) {
@@ -138,7 +138,7 @@ public class Ship extends DrawableActor implements HasTeam {
         return shieldActiveCounter;
     }
 
-    public int getKilledOn() {
+    public long getKilledOn() {
         return killedOn;
     }
 
@@ -146,9 +146,9 @@ public class Ship extends DrawableActor implements HasTeam {
         score += points;
     }
 
-    public void thrust() {
+    public void thrust(long time) {
 
-        if (lastThrustTime == 0 || AsteroidsState.time - lastThrustTime > THRUST_INTERVAL) {
+        if (lastThrustTime == 0 || time - lastThrustTime > THRUST_INTERVAL) {
 
             Vector thrust = new Vector(0D, -THRUST_POWER);
 
@@ -159,7 +159,7 @@ public class Ship extends DrawableActor implements HasTeam {
             if (velocity.length() > MAX_SPEED)
                 velocity.scale(MAX_SPEED / velocity.length());
 
-            lastThrustTime = AsteroidsState.time;
+            lastThrustTime = time;
         }
     }
 
@@ -186,29 +186,29 @@ public class Ship extends DrawableActor implements HasTeam {
         return shieldActiveCounter > 0 && energy > 0;
     }
 
-    public void kill() {
+    public void kill(long time) {
         health = 0;
-        killedOn = AsteroidsState.time;
+        killedOn = time;
     }
 
     public boolean isAlive() {
         return health > 0;
     }
 
-    public void firePrimary(List<Bullet> bullets) {
+    public void firePrimary(long time, List<Bullet> bullets) {
 
         if (isAlive() && !isShieldActive()) {
-            Bullet b = primaryWeapon.fire();
+            Bullet b = primaryWeapon.fire(time);
             if (b != null) {
                 bullets.add(b);
             } else { // hack: add expired bullet so that bullet result is sent to player
-                b = new Bullet(playerId, teamNr, fireCount, new Vector(-1, -1), new Vector(-1, -1), 0);
+                b = new Bullet(playerId, teamNr, time, fireCount, new Vector(-1, -1), new Vector(-1, -1), 0);
                 b.hit(-1);
                 b.setResult(BulletResult.WEAPON_LOCKED);
                 bullets.add(b);
             }
         } else { // hack: add expired bullet so that bullet result is sent to player
-            Bullet b = new Bullet(playerId, teamNr, fireCount, new Vector(-1, -1), new Vector(-1, -1), 0);
+            Bullet b = new Bullet(playerId, teamNr, time, fireCount, new Vector(-1, -1), new Vector(-1, -1), 0);
             b.hit(-1);
             b.setResult(BulletResult.WEAPON_LOCKED);
             bullets.add(b);
@@ -217,10 +217,10 @@ public class Ship extends DrawableActor implements HasTeam {
         fireCount++;
     }
 
-    public void fireSecondary(List<Bomb> bombs) {
+    public void fireSecondary(long time, List<Bomb> bombs) {
 
         if (isAlive() && !isShieldActive() && energy >= BOMB_ENERGY_DECREASE) {
-            Bomb b = (Bomb) secondaryWeapon.fire();
+            Bomb b = (Bomb) secondaryWeapon.fire(time);
             if (b != null) {
                 bombs.add(b);
                 energy -= BOMB_ENERGY_DECREASE;
@@ -230,7 +230,7 @@ public class Ship extends DrawableActor implements HasTeam {
         fireCount++;
     }
 
-    public boolean hit(double force) {
+    public boolean hit(long time, double force) {
 
         if (force >= 0)
             health -= force * HIT_FORCE_MULTIPLIER;
@@ -238,12 +238,12 @@ public class Ship extends DrawableActor implements HasTeam {
             health = 0;
 
         if (health <= 0)
-            kill();
+            kill(time);
 
         return health <= 0;
     }
 
-    public EffectActor getHitEffect(Actor actor) {
+    public EffectActor getHitEffect(long time, Actor actor) {
         Vector effectVelocity = (Vector) actor.getVelocity().clone();
         effectVelocity.scale(0.1);
 
@@ -252,10 +252,10 @@ public class Ship extends DrawableActor implements HasTeam {
 
         effectVelocity.add(shipVelocity);
 
-        return new ShipHitEffect(position, heading, effectVelocity);
+        return new ShipHitEffect(time, position, heading, effectVelocity);
     }
 
-    public EffectActor getExplosionEffect(Actor actor) {
+    public EffectActor getExplosionEffect(long time, Actor actor) {
 
         Vector effectVelocity = (Vector) actor.getVelocity().clone();
         effectVelocity.scale(0.2);
@@ -265,7 +265,7 @@ public class Ship extends DrawableActor implements HasTeam {
 
         effectVelocity.add(shipVelocity);
 
-        return new ShipExplosionEffect(position, heading, effectVelocity);
+        return new ShipExplosionEffect(time, position, heading, effectVelocity);
     }
 
     @Override
@@ -288,7 +288,7 @@ public class Ship extends DrawableActor implements HasTeam {
     }
 
     @Override
-    public void draw(GameMovieBuilder builder) {
+    public void draw(long time, GameMovieBuilder builder) {
 
         double size = (SHIP_RADIUS * 2);
 
@@ -297,8 +297,8 @@ public class Ship extends DrawableActor implements HasTeam {
             normAngle = 360 + normAngle;
 
         int spriteIndex = 0;
-        if (AsteroidsState.time - lastThrustTime < THRUST_INTERVAL)
-            spriteIndex = AsteroidsState.time - lastThrustTime + 1;
+        if (time - lastThrustTime < THRUST_INTERVAL)
+            spriteIndex = (int) (time - lastThrustTime + 1);
 
         builder.addItem(spriteId,
                 (int) position.getX(), (int) position.getY(),
@@ -313,7 +313,7 @@ public class Ship extends DrawableActor implements HasTeam {
     }
 
     @Override
-    public boolean expired() {
+    public boolean expired(long time) {
         return !isAlive();
     }
 

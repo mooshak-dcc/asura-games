@@ -70,9 +70,10 @@ public abstract class Actor implements Drawable {
     /**
      * Is this actor expired?
      *
+     * @param time {@code long} time
      * @return {@code true} if it is expired, {@code false} otherwise
      */
-    public boolean expired() {
+    public boolean expired(long time) {
         return false;
     }
 }

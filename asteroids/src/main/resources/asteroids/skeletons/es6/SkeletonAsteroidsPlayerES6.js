@@ -5,11 +5,6 @@ load('asteroids/wrappers/es6/AsteroidsPlayer.js');
 
 (function (exports) {'use strict';
 
-    /**
-     * Asteroids player in Javascript
-     *
-     * @author José Carlos Paiva <code>josepaiva94@gmail.com</code>
-     */
     class MyAsteroidsPlayer extends AsteroidsPlayer {
 
         // ---------------------- Your code below ---------------------------

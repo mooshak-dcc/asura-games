@@ -17,8 +17,8 @@ public class Bomb extends Bullet {
     private static final int BOMB_LIFESPAN = 500;
     private static final int BOMB_POWER = 4;
 
-    public Bomb(String playerId, int teamNr, int bulletCount, Vector position, Vector velocity, int heading) {
-        super(playerId, String.format(SPRITE_ID_FORMAT, teamNr % SPRITES.length), teamNr, bulletCount, position,
+    public Bomb(String playerId, int teamNr, long startTime, int bulletCount, Vector position, Vector velocity, int heading) {
+        super(playerId, String.format(SPRITE_ID_FORMAT, teamNr % SPRITES.length), teamNr, startTime, bulletCount, position,
                 velocity, heading, BOMB_LIFESPAN, BOMB_POWER);
     }
 
@@ -37,8 +37,8 @@ public class Bomb extends Bullet {
     }
 
     @Override
-    public EffectActor getHitEffect(Actor actor) {
-        return new BombExplosionEffect(teamNr, position, heading, new Vector(0,0));
+    public EffectActor getHitEffect(long time, Actor actor) {
+        return new BombExplosionEffect(time, teamNr, position, heading, new Vector(0,0));
     }
 
     @Override
@@ -46,17 +46,17 @@ public class Bomb extends Bullet {
     }
 
     @Override
-    public boolean expired() {
-        return health <= 0 || (AsteroidsState.time - startTime) > lifespan;
+    public boolean expired(long time) {
+        return health <= 0 || (time - startTime) > lifespan;
     }
 
     @Override
-    public void draw(GameMovieBuilder builder) {
+    public void draw(long time, GameMovieBuilder builder) {
 
-        int offset = (AsteroidsState.time - startTime) % 3;
+        int offset = (int) ((time - startTime) % 3);
         builder.addItem(spriteId,
                 (int) position.getX(), (int) position.getY(),
-                Math.toRadians(heading + (AsteroidsState.time - startTime) * 2),
+                Math.toRadians(heading + (time - startTime) * 2),
                 (double) BOMB_WIDTH / SPRITE_SIZE,
                 offset * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE);
     }

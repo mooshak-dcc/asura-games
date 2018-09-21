@@ -85,7 +85,7 @@ public class Asteroid extends NonPlayerAliveActor {
 
     }
 
-    public EffectActor getHitEffect(Actor actor) {
+    public EffectActor getHitEffect(long time, Actor actor) {
 
         Vector effectVelocity = (Vector) velocity.clone();
         effectVelocity.scale(0.25);
@@ -95,11 +95,11 @@ public class Asteroid extends NonPlayerAliveActor {
 
         effectVelocity.add(hitActorVelocity);
 
-        return new AsteroidHitEffect(actor.getPosition(), (int) Math.toDegrees(effectVelocity.angle2d()),
+        return new AsteroidHitEffect(time, actor.getPosition(), (int) Math.toDegrees(effectVelocity.angle2d()),
                 effectVelocity, size);
     }
 
-    public EffectActor getExplosionEffect(Actor actor) {
+    public EffectActor getExplosionEffect(long time, Actor actor) {
 
         Vector effectVelocity = (Vector) velocity.clone();
         effectVelocity.scale(0.15);
@@ -109,12 +109,12 @@ public class Asteroid extends NonPlayerAliveActor {
 
         effectVelocity.add(hitActorVelocity);
 
-        return new AsteroidExplosionEffect(position, (int) Math.toDegrees(effectVelocity.angle2d()),
+        return new AsteroidExplosionEffect(time, position, (int) Math.toDegrees(effectVelocity.angle2d()),
                 effectVelocity, size);
     }
 
     @Override
-    public void draw(GameMovieBuilder builder) {
+    public void draw(long time, GameMovieBuilder builder) {
         double radius = radius();
         drawSprite(builder, 0, 0, (int) radius * 2, 0);
     }

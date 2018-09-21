@@ -12,17 +12,17 @@ import pt.up.fc.dcc.asura.utils.Vector;
  */
 public abstract class EffectActor extends DrawableActor {
 
-    protected int startTime;
+    protected long startTime;
     protected int lifespan;
 
-    public EffectActor(String spriteId, int spriteSize, Vector position, int lifespan) {
-        this(spriteId, spriteSize, position, new Vector(0, 0), lifespan);
+    public EffectActor(long startTime, String spriteId, int spriteSize, Vector position, int lifespan) {
+        this(startTime, spriteId, spriteSize, position, new Vector(0, 0), lifespan);
     }
 
-    public EffectActor(String spriteId, int spriteSize, Vector position, Vector velocity,
+    public EffectActor(long startTime, String spriteId, int spriteSize, Vector position, Vector velocity,
                        int lifespan) {
         super(spriteId, spriteSize, position, velocity);
-        this.startTime = AsteroidsState.time;
+        this.startTime = startTime;
         this.lifespan = lifespan;
     }
 
@@ -36,7 +36,7 @@ public abstract class EffectActor extends DrawableActor {
     }
 
     @Override
-    public boolean expired() {
-        return (AsteroidsState.time - startTime) >= lifespan;
+    public boolean expired(long time) {
+        return (time - startTime) >= lifespan;
     }
 }
