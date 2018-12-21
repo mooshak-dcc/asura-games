@@ -161,7 +161,7 @@
                 <configuration>
                     <includePluginDependencies>true</includePluginDependencies>
                     <mainClass>pt.up.fc.dcc.asura.builder.GameServer</mainClass>
-                    <commandlineArgs>lightningpong pt.up.fc.dcc.asura.lightningpong.LightningPongManager es6 Shooter.js shooter es6 Follower.js follower</commandlineArgs>
+                    <commandlineArgs>lightningpong pt.up.fc.dcc.asura.LightningPongManager es6 Shooter.js shooter es6 Follower.js follower</commandlineArgs>
                     <systemProperties>
                         <systemProperty>
                             <key>js.interpreter</key>
