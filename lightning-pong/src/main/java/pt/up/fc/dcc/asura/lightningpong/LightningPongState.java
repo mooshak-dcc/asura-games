@@ -5,6 +5,7 @@ import pt.up.fc.dcc.asura.builder.base.messaging.PlayerAction;
 import pt.up.fc.dcc.asura.builder.base.messaging.StateUpdate;
 import pt.up.fc.dcc.asura.builder.base.movie.GameMovieBuilder;
 import pt.up.fc.dcc.asura.builder.base.GameState;
+import pt.up.fc.dcc.asura.builder.base.movie.models.MooshakClassification;
 import pt.up.fc.dcc.asura.lightningpong.messaging.CommandResult;
 import pt.up.fc.dcc.asura.lightningpong.messaging.PlayerCommand;
 import pt.up.fc.dcc.asura.lightningpong.messaging.PongUpdate;
@@ -29,6 +30,11 @@ import static pt.up.fc.dcc.asura.builder.base.movie.GameMovieBuilder.SpriteAncho
 public class LightningPongState implements GameState {
     public static final int GAME_WORLD_WIDTH = 700;
     public static final int GAME_WORLD_HEIGHT = 500;
+
+    private static final String MSG_WINNER = "Congratulations, %s. You have won!";
+    private static final String MSG_LOSER = "%s, your score was not good enough! Keep calm and get back stronger.";
+    private static final String MSG_TIE = "It's a tie! You are as good as your opponent or as bad as him.";
+
     private static final String BACKGROUND_SPRITE = "bg.png";
 
     private static final int FPS = 60;
@@ -241,7 +247,35 @@ public class LightningPongState implements GameState {
 
     @Override
     public void finalize(GameMovieBuilder builder) {
-        // TODO
+
+        builder.saveFrame();
+
+        builder.addFrame();
+
+        builder.restoreFrame();
+
+        Player winner = null, loser = null;
+        if (players.get(0).getScore() > players.get(1).getScore()) {
+            winner = players.get(0);
+            loser = players.get(1);
+        } else if (players.get(0).getScore() < players.get(1).getScore()) {
+            winner = players.get(1);
+            loser = players.get(0);
+        }
+
+        if (winner == loser) {
+            builder.addMessage(players.get(0).getPlayerId(), MSG_TIE);
+            builder.addMessage(players.get(1).getPlayerId(), MSG_TIE);
+            winner = players.get(0); loser = players.get(1);
+        } else {
+            builder.addMessage(winner.getPlayerId(), String.format(MSG_WINNER, winner.getPlayerName()));
+            builder.addMessage(loser.getPlayerId(), String.format(MSG_LOSER, loser.getPlayerName()));
+        }
+
+        builder.setClassification(winner.getPlayerId(), MooshakClassification.ACCEPTED);
+        builder.setClassification(loser.getPlayerId(), MooshakClassification.ACCEPTED);
+        builder.setPoints(winner.getPlayerId(), winner.getScore());
+        builder.setPoints(loser.getPlayerId(), loser.getScore());
     }
 
     private void processPlayerCommands() {
